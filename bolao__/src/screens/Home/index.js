@@ -31,6 +31,8 @@ import {
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useIsFocused } from "@react-navigation/native";
 import { JogosApi } from "../../components/hooks/JogoApi";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import New from "./components/New";
 export default function Home({ navigation }) {
   const { ShowTab } = useContext(AuthContext);
   const [selected, setSelected] = useState("1");
@@ -39,6 +41,7 @@ export default function Home({ navigation }) {
   const [filtros, setFiltros] = React.useState();
   const [loop, setLoop] = React.useState(true);
   const gif = require("../../components/hooks/load.gif");
+  let every = loading == false ? jogos : [];
 
   useEffect(() => {
     if (isFocused) {
@@ -49,34 +52,7 @@ export default function Home({ navigation }) {
   function PutSelected(data) {
     setSelected(data);
   }
-
-  if (filter && filter && loop) {
-    const options = {
-      method: "POST",
-      url: "https://rutherles.site/api/banner",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-        Authorization:
-          "Token eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vMTM3LjE4NC40OC42Ny9hcGkvbG9naW4iLCJpYXQiOjE2NjIwMzY2NzksImV4cCI6MjI2NjUzMjMwOTg5OSwibmJmIjoxNjYyMDM2Njc5LCJqdGkiOiJObWxKdHczbmZUTWtLSFRSIiwic3ViIjoiODEiLCJwcnYiOiIyM2JkNWM4OTQ5ZjYwMGFkYjM5ZTcwMWM0MDA4NzJkYjdhNTk3NmY3In0.qDXH1Mqh_MRK-zS5wYysCYgKht9yZB1YUOWUYgWKOaM",
-      },
-      data: { nome: filter },
-    };
-
-    axios
-      .request(options)
-      .then(function (response) {
-        console.log(response.data.sorteio[0]);
-        setFiltros(response.data.sorteio);
-        setLoop(false);
-        if (!response.data.sorteio[0]) {
-          setFiltros(jogos);
-        }
-      })
-      .catch(function (error) {
-        console.error(response.data);
-      });
-  }
+  const day = every.filter((item) => item);
 
   return (
     <SafeAreaView style={styles.Container}>
@@ -163,15 +139,15 @@ export default function Home({ navigation }) {
         </View>
       </View>
       <ScrollView showsVerticalScrollIndicator={false} style={styles.scroll}>
-        <Text style={styles.title}>Os maiores com até 85% de desconto</Text>
+        <Text style={styles.title}>Sorteios diários</Text>
         <View style={styles.cardContainer}>
           <View style={styles.cardContainerLeft}>
             <TouchableOpacity style={styles.cardContentLeft}>
-              <Image style={styles.cardImageLeft} alt="" />
-
-              <Text alignSelf={"center"} style={styles.subTitle}>
-                Preço: R$
-              </Text>
+              <Image
+                style={styles.cardImageLeft}
+                source={require("../../../assets/img/daylyq.png")}
+                alt=""
+              />
             </TouchableOpacity>
           </View>
 
@@ -180,25 +156,20 @@ export default function Home({ navigation }) {
               <Image
                 style={styles.cardImageRight}
                 alt=""
-                source={require("../../../assets/img/disnep.png")}
+                source={require("../../../assets/img/daylyl.png")}
               />
-
-              <Text style={styles.subTitle}>Preço: R$</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.cardContentRightBottom}>
               <Image
                 style={styles.cardImageRight}
                 alt=""
-                source={require("../../../assets/img/spotify.png")}
+                source={require("../../../assets/img/daylylm.png")}
               />
-
-              <Text style={styles.subTitle}>Preço: R$</Text>
             </TouchableOpacity>
           </View>
         </View>
 
         <Text style={styles.title}>Queridinhos da galera</Text>
-
         <FlatList
           style={styles.categoriesView}
           horizontal={true}
@@ -258,74 +229,58 @@ export default function Home({ navigation }) {
             <Text style={styles.titleAll}>Ver Todos</Text>
           </TouchableOpacity>
         </View>
+
         <FlatList
           style={styles.lastContainer}
           horizontal={true}
           showsHorizontalScrollIndicator={false}
           data={jogos}
           renderItem={({ item }) => (
-            <TouchableOpacity
+            <Box
+              display={
+                item.imagem == null
+                  ? "none"
+                  : item.imagem_small == null
+                  ? "none"
+                  : "flex"
+              }
               key={item.id}
-              onPress={() =>
-                navigation.navigate("Checkout", {
-                  id: item.id,
-                  title: item.name,
-                  source: item.source,
-                  places: item.places,
-                  price: item.price,
-                })
-              }
-              style={
-                item.nome == "iniciado" || item.nome == "finalizado"
-                  ? { display: "none" }
-                  : styles.card
-              }
             >
-              <Image
-                style={styles.cardImage}
-                source={
-                  item.nome == "MEGA-SENA"
-                    ? require("../../../assets/img/megasena.png")
-                    : item.nome == "LOTOFÁCIL" || item.nome == "LOTOF\u00c1CIL"
-                    ? require("../../../assets/img/lotofacil.png")
-                    : item.nome == "QUINA"
-                    ? require("../../../assets/img/quina.png")
-                    : item.nome == "LOTECA"
-                    ? require("../../../assets/img/loteca.jpg")
-                    : item.nome == "DUPLA SENA"
-                    ? require("../../../assets/img/duplasena.png")
-                    : item.imagem
+              <New
+                dezenas={item.dezenas}
+                premio={item.premiacao}
+                cover={item.imagem}
+                name={item.nome}
+                status={item.status}
+                valor={item.valor}
+                description={item.descricao}
+                onPress={() =>
+                  navigation.navigate("Detalhes", {
+                    imagem: item.imagem,
+                    imagem_small: JSON.stringify(item.imagem_small).replace(
+                      /"/g,
+                      ""
+                    ),
+                    nome: item.nome,
+                    status: item.status,
+                    jogo_id: item.id,
+                    descricao: item.descricao,
+                    cota_total: JSON.stringify(item.cota_total).replace(
+                      /"/g,
+                      ""
+                    ),
+                    valor: item.valor,
+                    premiacao: item.premiacao,
+                    arquivos: item.uploads ? item.uploads : null,
+                    dezenas: item.dezenas,
+                    premiacao: item.premiacao,
+                    concurso: item.concurso,
+                    data: item.data,
+                    cotas: item.cotas,
+                  })
                 }
-                alt=""
               />
-              <Text style={styles.name}>
-                {item.nome} {item.concurso}
-              </Text>
-              <Box mb={2}>
-                <Text style={styles.description}>{item.descricao}</Text>
-              </Box>
-              <Box mb={2}>
-                <Text style={styles.subTitle}>Preço: R$ {item.valor},00</Text>
-
-                <Box
-                  flexDirection={"row"}
-                  alignItems={"center"}
-                  justifyContent={"space-evenly"}
-                >
-                  <Text style={styles.subTitle}>
-                    {item.status != null
-                      ? item.status[0].toUpperCase() +
-                        item.status.slice(1).toLowerCase()
-                      : "Expirado"}
-                  </Text>
-                  <MaterialCommunityIcons
-                    name="checkbox-blank-circle"
-                    size={10}
-                    color={item.status == "ATIVO" ? Primary : Error}
-                  />
-                </Box>
-              </Box>
-            </TouchableOpacity>
+            </Box>
           )}
         />
       </ScrollView>

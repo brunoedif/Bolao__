@@ -1,4 +1,5 @@
 export const Primary = "#0ed830";
+export const Gradiente = "#3fff5f";
 export const TextPrimary = "#0ed830";
 export const TextTitle = "#121212";
 export const TextSubTitle = "#404040";

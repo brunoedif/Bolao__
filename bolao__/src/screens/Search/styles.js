@@ -329,8 +329,6 @@ export default StyleSheet.create({
   },
   lastContainer: {
     backgroundColor: BackgroundPrimary,
-    borderRadius: 20,
-    paddingBottom: 20,
   },
   lastImage: {
     width: 80,

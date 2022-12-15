@@ -62,7 +62,7 @@ export const Action = styled.TouchableOpacity`
   align-items: center;
   justify-content: center;
   border: 1px solid rgba(255, 255, 255, 0.6);
-  width: 150px;
+  width: 50%;
   height: 45px;
   border-radius: 10px;
   margin: 0 10px;
@@ -113,11 +113,12 @@ export const Card = styled.View`
 
 export const CardBody = styled.View`
   flex-direction: row;
+  align-items: center;
 `;
 
 export const CardDetails = styled.View`
   flex: 1;
-  margin-right: 40px;
+  margin-right: 20px;
 `;
 
 export const CardTitle = styled.Text`
@@ -132,6 +133,7 @@ export const CardInfo = styled.Text`
   font-size: 14px;
   color: "#121212";
   margin-top: 15px;
+  width: 105%;
 `;
 
 export const Img = styled.Image`

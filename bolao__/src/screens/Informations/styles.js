@@ -31,7 +31,7 @@ export default StyleSheet.create({
 
     flex: 1,
     justifyContent: "flex-start",
-    marginTop: "30%",
+    marginTop: "15%",
   },
   container: {
     backgroundColor: BackgroundSecondary,

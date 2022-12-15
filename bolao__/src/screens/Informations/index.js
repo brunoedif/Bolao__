@@ -36,7 +36,8 @@ import { useState, useRef } from "react";
 import { AuthContext } from "../../context/auth";
 import { MaskedTextInput } from "react-native-mask-text";
 import { BackgroundSecondary } from "../../components/Colors";
-
+import axios from "axios";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 export function ProfileInfo({ navigation }) {
   const [edit, setEdit] = useState(true);
   const { PutInformacoes, email, ShowTab } = useContext(AuthContext);
@@ -46,21 +47,61 @@ export function ProfileInfo({ navigation }) {
     formState: { errors },
   } = useForm({
     defaultValues: {
-      Nome: "",
-      Telefone: "",
-      Email: email,
-      Senha: "",
-      Rsenha: "",
+      name: "",
+      phone: "",
+      email: "",
+      password: "",
+      rpassword: "",
+      cep: "",
+      adress: "",
+      date: "",
+      cpf: "",
+      city: "",
+      district: "",
+      state: "",
     },
   });
   useEffect(() => {
-    ShowTab("");
+    ShowTab("none");
   });
 
   function handleRegister(data) {
     PutInformacoes([data.Nome, data.Telefone, data.Senha, data.Rsenha]);
   }
 
+  const [user, setUser] = React.useState();
+  const [loader, setloader] = React.useState(false);
+  const [loop, setLoop] = useState(false);
+  let users = "";
+
+  if (loader) {
+    users = JSON.parse(user);
+  }
+  useEffect(() => {
+    const getData = async () => {
+      try {
+        const value = await AsyncStorage.getItem("@user");
+        if (value !== null) {
+          setUser(value);
+          setloader(true);
+          setLoop(true);
+        }
+      } catch (e) {
+        // error reading value
+      }
+    };
+
+    getData();
+  });
+
+  var data = {};
+  if (loop) {
+    users.forEach(function (item) {
+      for (var i in item) {
+        data[i] = item[i];
+      }
+    });
+  }
   return (
     <KeyboardAvoidingView
       style={styles.container}
@@ -72,9 +113,7 @@ export function ProfileInfo({ navigation }) {
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <View style={styles.containerInfo}>
           <FlatList
-            marginTop={-6}
             showsVerticalScrollIndicator={false}
-            scrollEnabled={false}
             w={"77%"}
             data={Inputs}
             renderItem={({ item }) => (
@@ -99,7 +138,7 @@ export function ProfileInfo({ navigation }) {
                       marginBottom={item.marginBottom}
                       height={item.height}
                       onChangeText={onChange}
-                      value={value}
+                      value={data[item.name]}
                       placeholder={item.placeholder}
                       autoCapitalize={item.auto}
                       autoCorrect={false}

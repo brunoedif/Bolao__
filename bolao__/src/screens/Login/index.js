@@ -19,17 +19,23 @@ import {
   VStack,
   Pressable,
   Icon,
+  Button,
 } from "native-base";
 import { MaterialIcons } from "@expo/vector-icons";
 import { AuthContext } from "../../context/auth";
 import { useForm, Controller } from "react-hook-form";
 import { FontAwesome5 } from "@expo/vector-icons";
-
+import axios from "axios";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import styles from "./styles";
 
-export default function Login({ navigation }) {
+export default function Login({ navigation, route }) {
+  const [load, setLoad] = useState(false);
+  const { cadastro } = route.params ? route.params : "";
+  const [token, setToken] = useState();
+  const [erro, setErro] = useState();
   const [show, setShow] = React.useState(false);
-  const { ShowTab, screen, PutLogin } = useContext(AuthContext);
+  const { ShowTab, screen, PutsignedIn } = useContext(AuthContext);
   const {
     control,
     handleSubmit,
@@ -38,19 +44,83 @@ export default function Login({ navigation }) {
     defaultValues: {
       email: "",
       password: "",
-      login: true,
+      signedIn: true,
     },
   });
-  function SetLogin(data) {
-    if (data.password != "" && data.email != "") {
-      PutLogin(data.email, data.login);
-    }
-  }
 
   useEffect(() => {
     ShowTab("none");
   });
   screen;
+
+  function handleSignin(data) {
+    setLoad(true);
+    const storeUser = async (value) => {
+      try {
+        const jsonValue = JSON.stringify(value);
+        await AsyncStorage.setItem("@user", jsonValue);
+      } catch (e) {}
+    };
+
+    const setToken = async (value) => {
+      try {
+        await AsyncStorage.setItem("@token", value);
+      } catch (e) {}
+    };
+    function SignedIn() {
+      PutsignedIn(true);
+    }
+    const options = {
+      method: "POST",
+      url: "https://rutherles.site/api/login",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        Authorization: "token" + token,
+      },
+      data: { email: data.email, password: data.password },
+    };
+
+    axios
+      .request(options)
+      .then(function (response) {
+        storeUser(response.data.user);
+        global.id = response.data.user.id;
+        setToken(response.data.authorisation.token);
+        SignedIn();
+        setLoad(false);
+      })
+
+      .catch(function (error) {
+        console.error(error);
+        setLoad(false);
+        setErro("Email ou senha incorretos");
+      });
+  }
+
+  useEffect(() => {
+    const getData = async () => {
+      try {
+        const value = await AsyncStorage.getItem("@token");
+        if (value !== null) {
+          setToken(value);
+          storeUser();
+        }
+      } catch (e) {
+        // error reading value
+      }
+    };
+
+    const storeStart = async (value) => {
+      try {
+        await AsyncStorage.setItem("@start", "true");
+      } catch (e) {}
+    };
+
+    getData();
+    storeStart();
+  }, []);
+
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <View style={styles.container}>
@@ -132,12 +202,22 @@ export default function Login({ navigation }) {
             Digite seu email.
           </Text>
         )}
-        <TouchableOpacity
-          onPress={handleSubmit(SetLogin)}
-          style={styles.loginButton}
-        >
-          <Text style={styles.loginText}>Entrar</Text>
-        </TouchableOpacity>
+
+        {load ? (
+          <Button
+            style={styles.loginButton}
+            isLoading
+            isLoadingText="Entrando..."
+          ></Button>
+        ) : (
+          <TouchableOpacity
+            onPress={handleSubmit(handleSignin)}
+            style={styles.loginButton}
+          >
+            <Text style={styles.loginText}>Entrar</Text>
+          </TouchableOpacity>
+        )}
+
         <View style={styles.divisor}>
           <View style={styles.divisorLine}></View>
           <Text style={{ marginHorizontal: "3%", color: "#979797" }}>OU</Text>

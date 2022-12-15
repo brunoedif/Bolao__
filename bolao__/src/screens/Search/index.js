@@ -25,6 +25,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Touchables } from "./components/Consts";
 import { Last } from "./components/Consts";
 import { useNavigation } from "@react-navigation/native";
+import { JogosApi } from "../../components/hooks/JogoApi";
 import {
   BackgroundPrimary,
   BackgroundSecondary,
@@ -33,7 +34,9 @@ import {
   TextTertiary,
 } from "../../components/Colors";
 import { useIsFocused } from "@react-navigation/native";
+import New from "./components/New";
 export default function Search() {
+  const { jogos, loading } = JogosApi("https://rutherles.site/api/jogos");
   const navigation = useNavigation();
   const isFocused = useIsFocused();
   const { ShowTab } = useContext(AuthContext);
@@ -135,44 +138,44 @@ export default function Search() {
       </View>
       <FlatList
         numColumns={2}
+        w={"100%"}
+        px={"5px"}
         style={styles.lastContainer}
         horizontal={false}
         showsVerticalScrollIndicator={false}
-        data={Last}
+        data={jogos}
         renderItem={({ item }) => (
-          <>
-            <TouchableOpacity
-              onPress={() =>
-                navigation.navigate("Checkout", {
-                  id: item.key1,
-                  title: item.name,
-                  source: item.source,
-                  places: item.places,
-                  price: item.price,
-                })
-              }
-              key={item.key1}
-              style={styles.lastContent}
-            >
-              <Image
-                key={item.key2}
-                style={styles.lastImage}
-                alt=""
-                source={item.source}
-              />
-              <Text key={item.key3} style={styles.cardInfoName}>
-                {item.name}
-              </Text>
-              <View key={item.key4} style={styles.infoContainer}>
-                <Text key={item.key6} style={styles.cardInfo}>
-                  Preço: R$ {item.price}
-                </Text>
-                <Text key={item.key6} style={styles.cardInfo}>
-                  Vagas: {item.places}
-                </Text>
-              </View>
-            </TouchableOpacity>
-          </>
+          <New
+            dezenas={item.dezenas}
+            premio={item.premiacao}
+            cover={item.imagem}
+            name={item.nome}
+            status={item.status}
+            valor={item.valor}
+            description={item.descricao}
+            onPress={() =>
+              navigation.navigate("Detalhes", {
+                imagem: item.imagem,
+                imagem_small: JSON.stringify(item.imagem_small).replace(
+                  /"/g,
+                  ""
+                ),
+                nome: item.nome,
+                status: item.status,
+                jogo_id: item.id,
+                descricao: item.descricao,
+                cota_total: JSON.stringify(item.cota_total).replace(/"/g, ""),
+                valor: item.valor,
+                premiacao: item.premiacao,
+                arquivos: item.uploads ? item.uploads : null,
+                dezenas: item.dezenas,
+                premiacao: item.premiacao,
+                concurso: item.concurso,
+                data: item.data,
+                cotas: item.cotas,
+              })
+            }
+          />
         )}
       />
     </SafeAreaView>

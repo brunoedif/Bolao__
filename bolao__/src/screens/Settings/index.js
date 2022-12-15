@@ -19,7 +19,7 @@ import { AuthContext } from "../../context/auth";
 import { BackgroundPrimary } from "../../components/Colors";
 import { useIsFocused } from "@react-navigation/native";
 export default function Settings({ navigation }) {
-  const { ShowTab, PutLogout } = useContext(AuthContext);
+  const { ShowTab, PutsignedIn, signedIn } = useContext(AuthContext);
   const login = false;
 
   useEffect(() => {
@@ -27,9 +27,11 @@ export default function Settings({ navigation }) {
       ShowTab("visible");
     }
   });
-  function Logout() {
-    PutLogout(login);
+  function Signedout() {
+    PutsignedIn(false);
+    signedIn;
   }
+  console.log(signedIn);
   const isFocused = useIsFocused();
   return (
     <SafeAreaView style={styles.Container}>
@@ -148,7 +150,7 @@ export default function Settings({ navigation }) {
           <AntDesign name="right" size={20} color="black" />
         </TouchableOpacity>
         <Divider />
-        <TouchableOpacity style={styles.options} onPress={Logout}>
+        <TouchableOpacity style={styles.options} onPress={Signedout}>
           <Box flexDirection={"row"}>
             <MaterialIcons
               style={styles.content}

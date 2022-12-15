@@ -36,13 +36,19 @@ import {
   UseTicketButton,
   UseTicketLabel,
 } from "./styles";
-import { BackgroundSecondary, Primary } from "../../components/Colors";
+import {
+  BackgroundSecondary,
+  Gradiente,
+  Primary,
+} from "../../components/Colors";
 import creditCard from "../../../assets/img/credit-card.png";
 import { AuthContext } from "../../context/auth";
 import { useIsFocused } from "@react-navigation/native";
-export default function Wallet() {
-  const { ShowTab, informacoes } = useContext(AuthContext);
+import { Image } from "native-base";
 
+export default function Wallet(route, navigation) {
+  const { ShowTab, user, getUser } = useContext(AuthContext);
+  const wallet = user.carteira;
   useEffect(() => {
     if (isFocused) {
       ShowTab("visible");
@@ -61,17 +67,29 @@ export default function Wallet() {
     setUseBalance((prevState) => !prevState);
   }
 
+  const { pagamento } = route.params ? route.params : false;
+
+  if (pagamento && load) {
+    alert("Depositado com sucesso!");
+    setLoad(false);
+  }
+
+  useEffect(() => {
+    getUser(user.id);
+  }, []);
+
   return (
     <Wrapper>
       <Header
-        colors={useBalance ? ["#6699eb", Primary] : ["#D3D3D3", "#868686"]}
+        colors={useBalance ? [Gradiente, Primary] : ["#D3D3D3", "#868686"]}
       >
         <HeaderContainer>
-          <Title>Saldo Grupou</Title>
+          <Title>Saldo Bolão</Title>
 
           <BalanceContainer>
             <Value>
-              R$ <Bold>{isVisible ? "150,00" : "----"}</Bold>
+              R$ {wallet ? wallet : 0}
+              <Bold></Bold>
             </Value>
 
             <EyeButton onPress={handleToggleVisibility}>
@@ -83,8 +101,6 @@ export default function Wallet() {
             </EyeButton>
           </BalanceContainer>
 
-          <Info>Seu saldo pode ser retirado a qualquer momento!</Info>
-
           <Actions>
             <Action>
               <MaterialCommunityIcons
@@ -93,11 +109,6 @@ export default function Wallet() {
                 color={BackgroundSecondary}
               />
               <ActionLabel>Adicionar</ActionLabel>
-            </Action>
-
-            <Action>
-              <FontAwesome name="bank" size={20} color={BackgroundSecondary} />
-              <ActionLabel>Retirar</ActionLabel>
             </Action>
           </Actions>
         </HeaderContainer>
@@ -115,19 +126,23 @@ export default function Wallet() {
         <Card>
           <CardBody>
             <CardDetails>
-              <CardTitle>Cadastre seu cartão de crédito</CardTitle>
               <CardInfo>
-                Cadastre um cartão de crédito para poder comprar grupos quando
-                não tiver saldo.
+                Faça um Pix para adicionar saldo para poder comprar bilhetes
+                quando não tiver saldo.
               </CardInfo>
             </CardDetails>
 
-            <Img source={creditCard} resizeMode="contain" />
+            <Image
+              alt=""
+              source={require("../../../assets/img/pix.png")}
+              width={100}
+              height={35}
+            />
           </CardBody>
 
           <AddButton>
             <AntDesign name="pluscircleo" size={30} color={Primary} />
-            <AddLabel>Adicionar cartão de crédito</AddLabel>
+            <AddLabel>Adicionar Saldo</AddLabel>
           </AddButton>
         </Card>
 

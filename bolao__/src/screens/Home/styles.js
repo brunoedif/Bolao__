@@ -113,18 +113,19 @@ export default StyleSheet.create({
   },
   cardContainer: {
     flexDirection: "row",
-    justifyContent: "space-between",
+    justifyContent: "space-around",
     height: 200,
   },
   cardContainerRight: {
-    width: "49.5%",
+    width: "50%",
     alignItems: "center",
     justifyContent: "center",
+    alignSelf: "flex-start",
   },
   cardContainerLeft: { width: "49.5%" },
   cardContentLeft: {
     width: "95%",
-    height: "102%",
+    height: "83%",
     shadowColor: Shaddow,
     shadowOffset: {
       width: 0,
@@ -138,8 +139,8 @@ export default StyleSheet.create({
     borderRadius: 20,
   },
   cardContentRightTop: {
-    width: "100%",
-    height: "50%",
+    width: "80%",
+    height: "40%",
     shadowColor: Shaddow,
     shadowOffset: {
       width: 0,
@@ -154,8 +155,8 @@ export default StyleSheet.create({
     marginBottom: "3%",
   },
   cardContentRightBottom: {
-    width: "100%",
-    height: "50%",
+    width: "80%",
+    height: "40%",
     shadowColor: Shaddow,
     shadowOffset: {
       width: 0,
@@ -170,17 +171,15 @@ export default StyleSheet.create({
     borderRadius: 20,
   },
   cardImageLeft: {
-    height: "50%",
-    width: "50%",
+    height: "90%",
+    width: "90%",
 
     alignSelf: "center",
-    marginTop: "15%",
   },
   cardImageRight: {
     resizeMode: "cover",
-    width: 150,
-    height: 45,
-    marginTop: 10,
+    width: "80%",
+    height: "70%",
   },
 
   title: {
@@ -200,6 +199,7 @@ export default StyleSheet.create({
     color: TextTertiary,
     fontSize: SecondaryFontSize,
     textAlign: "flex-start",
+    paddingHorizontal: 10,
   },
   description: {
     fontSize: 10,
@@ -230,6 +230,7 @@ export default StyleSheet.create({
     width: 80,
     height: 80,
     marginTop: 20,
+    alignSelf: "center",
   },
   card: {
     width: 200,
