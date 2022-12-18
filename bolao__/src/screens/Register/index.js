@@ -26,6 +26,7 @@ import {
   VStack,
   Box,
   FlatList,
+  Button,
 } from "native-base";
 import { AntDesign } from "@expo/vector-icons";
 import { FontAwesome5 } from "@expo/vector-icons";
@@ -37,6 +38,7 @@ import { AuthContext } from "../../context/auth";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import axios from "axios";
+import api from "../../components/hooks/api";
 export function Email() {
   const { PutEmail, ShowTab } = useContext(AuthContext);
 
@@ -163,25 +165,27 @@ export function Codigo({ navigation }) {
             }}
             name="codigo"
             render={({ field: { onChange, onBlur, value } }) => (
-              <CodeField
-                ref={ref}
-                {...props}
-                value={value}
-                onChangeText={onChange}
-                cellCount={CELL_COUNT}
-                rootStyle={styles.codeFieldRoot}
-                keyboardType="number-pad"
-                textContentType="oneTimeCode"
-                renderCell={({ index, symbol, isFocused }) => (
-                  <Text
-                    key={index}
-                    style={[styles.cell, isFocused && styles.focusCell]}
-                    onLayout={getCellOnLayoutHandler(index)}
-                  >
-                    {symbol || (isFocused ? <Cursor /> : null)}
-                  </Text>
-                )}
-              />
+              <Box alignItems={"center"} width={"81%"}>
+                <CodeField
+                  ref={ref}
+                  {...props}
+                  value={value}
+                  onChangeText={onChange}
+                  cellCount={CELL_COUNT}
+                  rootStyle={styles.codeFieldRoot}
+                  keyboardType="number-pad"
+                  textContentType="oneTimeCode"
+                  renderCell={({ index, symbol, isFocused }) => (
+                    <Text
+                      key={index}
+                      style={[styles.cell, isFocused && styles.focusCell]}
+                      onLayout={getCellOnLayoutHandler(index)}
+                    >
+                      {symbol || (isFocused ? <Cursor /> : null)}
+                    </Text>
+                  )}
+                />
+              </Box>
             )}
           />
           {errors.codigo && (
@@ -203,16 +207,12 @@ export function Codigo({ navigation }) {
 }
 
 export function Informacoes({ navigation }) {
-  const setToken = async (value) => {
-    try {
-      await AsyncStorage.setItem("@token", value);
-    } catch (e) {}
-  };
   const { PutSignup, email, ShowTab } = useContext(AuthContext);
   const [cep, setCep] = useState("");
   const [lop, setLop] = React.useState(true);
   const [address, setAddress] = useState("");
   const [erro, setErro] = React.useState();
+  const [load, setLoad] = useState(false);
   const {
     control,
     handleSubmit,
@@ -226,84 +226,87 @@ export function Informacoes({ navigation }) {
       cpf: "",
       date: "",
       email: email,
+      endereco: address.logradouro + address.bairro,
+      cidade: address.localidade,
+      estado: address.uf,
+      cep: address.cep,
+      district: address.bairro,
     },
   });
+  console.log(address.bairro);
   useEffect(() => {
     ShowTab("none");
   });
-  if (cep.length == 8 && lop) {
-    const options = {
-      method: "GET",
-      url: "http://viacep.com.br/ws/" + cep.replace(/[^0-9]/g, "") + "/json/",
-    };
+  useEffect(() => {
+    if (cep.length == 8 && lop) {
+      const options = {
+        method: "GET",
+        url: "http://viacep.com.br/ws/" + cep.replace(/[^0-9]/g, "") + "/json/",
+      };
 
-    axios
-      .request(options)
-      .then(function (response) {
-        console.log(response.data);
-        setAddress(response.data);
-        if (response.data.erro == true) {
-          setLop(true);
-        }
-        setLop(false);
-      })
-      .catch(function (error) {
-        console.error(error);
-      });
-  }
-  function handleSignup(data) {
-    const setUser = async (value) => {
-      try {
-        const jsonValue = JSON.stringify(value);
-        await AsyncStorage.setItem("@user", jsonValue);
-        global.id = jsonValue.id;
-      } catch (e) {}
-    };
+      axios
+        .request(options)
+        .then(function (response) {
+          setAddress(response.data);
+          if (response.data.erro == true) {
+            setLop(true);
+          }
+          setLop(false);
+        })
+        .catch(function (error) {
+          console.error(error);
+        });
+    }
+  }, []);
 
-    console.log(data);
+  function handleSignin(data) {
+    handleSubmit();
+    setLoad(true);
     const options = {
       method: "POST",
       url: "https://rutherles.site/api/cadastro",
+
       headers: {
         Accept: "application/json",
         "Content-Type": "application/json",
       },
+
       data: {
-        name: data.name,
-        email: data.email,
+        nome: data.name,
+        email: email.toLowerCase().trim(),
         password: data.password,
-        telefone: data.phone,
+        telefone: data.telefone,
         cpf: data.cpf,
-        endereco: address.logradouro,
+        endereco: address.logradouro + address.bairro,
         cidade: address.localidade,
         nascimento: data.date,
         estado: address.uf,
-        cep: cep,
-        bairro: address.bairro,
+        cep: address.cep,
       },
     };
 
     axios
       .request(options)
       .then(function (response) {
-        console.log(response.data.user);
-        setToken(response.data.token);
-        setUser(response.data.user);
-
+        console.error(response);
         if (cep.length > 7) {
-          PutSignup(true);
-          navigation.navigate("Home", {
+          alert("Usuário cadastrado com sucesso.");
+
+          navigation.navigate("Login", {
             cadastro: "Usuário cadastrado com sucesso.",
           });
+          setLoad(false);
         } else {
           alert("Por favor digite um CEP Válido");
+          setLoad(false);
         }
       })
       .catch(function (error) {
-        console.error(error);
-        setErro("Email já cadastrado");
+        setErro("Dados já cadastrados");
+        setload(false);
       });
   }
+
   return (
     <KeyboardAvoidingView
       style={styles.container}
@@ -347,11 +350,11 @@ export function Informacoes({ navigation }) {
                       value={
                         item.name == "cep"
                           ? cep
-                          : item.name == "address"
+                          : item.name == "endereco"
                           ? address.logradouro
-                          : item.name == "state"
+                          : item.name == "estado"
                           ? address.uf
-                          : item.name == "city"
+                          : item.name == "cidade"
                           ? address.localidade
                           : item.name == "district"
                           ? address.bairro
@@ -370,12 +373,17 @@ export function Informacoes({ navigation }) {
               </Box>
             )}
           />
-          <TouchableOpacity
-            onPress={handleSubmit(handleSignup)}
-            style={styles.infoButton}
-          >
-            <Text style={styles.infoText}>Finalizar cadastro</Text>
-          </TouchableOpacity>
+          {load ? (
+            <Button
+              style={styles.infoButton}
+              isLoading
+              isLoadingText="Registrando"
+            ></Button>
+          ) : (
+            <TouchableOpacity style={styles.infoButton} onPress={handleSignin}>
+              <Text style={styles.infoText}> Cadastre-se </Text>
+            </TouchableOpacity>
+          )}
           {errors.email && (
             <Text style={{ color: "red", alignSelf: "center" }}>
               Digite seu email.

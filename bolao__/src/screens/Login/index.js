@@ -44,7 +44,6 @@ export default function Login({ navigation, route }) {
     defaultValues: {
       email: "",
       password: "",
-      signedIn: true,
     },
   });
 
@@ -76,7 +75,6 @@ export default function Login({ navigation, route }) {
       headers: {
         Accept: "application/json",
         "Content-Type": "application/json",
-        Authorization: "token" + token,
       },
       data: { email: data.email, password: data.password },
     };
@@ -92,7 +90,7 @@ export default function Login({ navigation, route }) {
       })
 
       .catch(function (error) {
-        console.error(error);
+        console.error("n foi");
         setLoad(false);
         setErro("Email ou senha incorretos");
       });

@@ -1,7 +1,7 @@
 export const Inputs = [
   {
     key: "1",
-    name: "name",
+    name: "nome",
     marginY: 1,
     label: "Nome completo",
     placeholder: "Nome completo",
@@ -42,12 +42,12 @@ export const Inputs = [
     variant: "underlined",
     autoCapitalize: true,
     secury: false,
-    keyboardType: "default",
+    keyboardType: "numeric",
   },
 
   {
     key: "4",
-    name: "phone",
+    name: "telefone",
     marginY: 1,
     label: "Telefone",
     placeholder: "Telefone",
@@ -89,11 +89,11 @@ export const Inputs = [
     variant: "underlined",
     autoCapitalize: true,
     secury: false,
-    keyboardType: "default",
+    keyboardType: "numeric",
   },
   {
     key: "7",
-    name: "address",
+    name: "endereco",
     marginY: 1,
     label: "Endereço",
     placeholder: "Endereço",
@@ -123,7 +123,7 @@ export const Inputs = [
   },
   {
     key: "9",
-    name: "city",
+    name: "cidade",
     marginY: 1,
     label: "Cidade",
     placeholder: "Cidade",
@@ -138,7 +138,7 @@ export const Inputs = [
   },
   {
     key: "10",
-    name: "state",
+    name: "estado",
     marginY: 1,
     label: "Estado",
     placeholder: "Estado",

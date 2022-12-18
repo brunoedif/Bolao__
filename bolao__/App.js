@@ -31,7 +31,7 @@ export default function App() {
   }
 
   return (
-    <NativeBaseProvider>
+    <NativeBaseProvider value={{ signed: true }}>
       <NavigationContainer>
         <AuthProvider>
           <Routes />

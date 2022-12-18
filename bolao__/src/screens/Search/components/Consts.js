@@ -5,32 +5,36 @@ const last4 = require("../../../../assets/img/antivirus.png");
 const last5 = require("../../../../assets/img/software.png");
 const last6 = require("../../../../assets/img/VPN.png");
 const height = Math.floor(Math.random() * 100 + 150);
-console.log(height);
+
 export const Touchables = [
   {
     title: "Todos",
-    key: 0,
+    key: "TODOS",
   },
 
   {
-    title: "Depoimento",
-    key: 1,
+    title: "Mega Sena",
+    key: "MEGA-SENA",
   },
   {
-    title: "Narração",
-    key: 2,
+    title: "Lotofácil",
+    key: "LOTOF\u00c1CIL",
   },
   {
-    title: "Edição de foto",
-    key: 3,
+    title: "Quina",
+    key: "QUINA",
   },
   {
-    title: "Videos",
-    key: 4,
+    title: "Lotomania",
+    key: "LOTOMANIA",
   },
   {
-    title: "Arte para post",
-    key: 5,
+    title: "Dupla Sena",
+    key: "DUPLA SENA",
+  },
+  {
+    title: "Loteca",
+    key: "LOTECA",
   },
 ];
 export const Last = [

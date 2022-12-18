@@ -108,27 +108,31 @@ export const Last = [
 export const Touchables = [
   {
     title: "Todos",
+    id: "0",
+  },
+  {
+    title: "Mega Sena",
     id: "1",
   },
 
   {
-    title: "Stream",
+    title: "Quina",
     id: "2",
   },
   {
-    title: "Edição",
+    title: "Dupla Sena",
     id: "3",
   },
   {
-    title: "Vpn",
+    title: "Mais Milionária",
     id: "4",
   },
   {
-    title: "Photoshop",
+    title: "Loteca",
     id: "5",
   },
   {
-    title: "Antivirus",
+    title: "Lotofácil",
     id: "6",
   },
 ];

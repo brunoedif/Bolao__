@@ -3,6 +3,7 @@ import React, { useContext, useEffect } from "react";
 import { ImageBackground, View } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
 import { AuthContext } from "../../context/auth";
+import { JogoApi } from "../../components/hooks/jogos";
 import {
   HStack,
   Center,
@@ -30,28 +31,26 @@ import {
 } from "../../components/Colors";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useIsFocused } from "@react-navigation/native";
-import { JogosApi } from "../../components/hooks/JogoApi";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import New from "./components/New";
 export default function Home({ navigation }) {
   const { ShowTab } = useContext(AuthContext);
   const [selected, setSelected] = useState("1");
-  const { jogos, loading } = JogosApi("https://rutherles.site/api/jogos");
+  const { jogos, loading } = JogoApi("https://rutherles.site/api/jogos");
   const [filter, setFilter] = React.useState();
   const [filtros, setFiltros] = React.useState();
   const [loop, setLoop] = React.useState(true);
-  const gif = require("../../components/hooks/load.gif");
+
   let every = loading == false ? jogos : [];
 
-  useEffect(() => {
+  useEffect((data) => {
     if (isFocused) {
       ShowTab("visible");
+      setSelected(data);
     }
   });
   const isFocused = useIsFocused();
-  function PutSelected(data) {
-    setSelected(data);
-  }
+  function PutSelected(data) {}
   const day = every.filter((item) => item);
 
   return (
@@ -88,54 +87,11 @@ export default function Home({ navigation }) {
               <Avatar
                 style={styles.avatar}
                 source={{
-                  uri: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=687&q=80",
+                  uri: "https://yt3.ggpht.com/eULZKQKOu5C6OTPyEdw_vTEsJ2zgnoZSMSwVRuDvk2Hm8qmsovMA7KLcHwwBDcDlME-UfyKb=s88-c-k-c0x00ffffff-no-rj",
                 }}
               ></Avatar>
             </TouchableOpacity>
           </View>
-        </View>
-
-        <View style={styles.footerHeader}>
-          <View style={styles.flatLabel}>
-            <Text style={styles.title}>Mais Populares</Text>
-            <TouchableOpacity>
-              <Text style={styles.titleAll}>Ver Todos</Text>
-            </TouchableOpacity>
-          </View>
-          <FlatList
-            style={styles.filter}
-            horizontal={true}
-            showsHorizontalScrollIndicator={false}
-            data={Touchables}
-            renderItem={({ item }) => (
-              <TouchableOpacity
-                key={item.id}
-                onPress={() => PutSelected(item.id)}
-                style={StyleSheet.flatten([
-                  styles.filterOptions,
-                  {
-                    backgroundColor:
-                      selected == item.id ? Primary : BackgroundSecondary,
-                    borderColor: selected == item.id ? Primary : Border,
-                  },
-                ])}
-              >
-                <Text
-                  style={StyleSheet.flatten([
-                    styles.subTitle,
-                    {
-                      color:
-                        selected == item.id
-                          ? BackgroundSecondary
-                          : TextTertiary,
-                    },
-                  ])}
-                >
-                  {item.title}
-                </Text>
-              </TouchableOpacity>
-            )}
-          />
         </View>
       </View>
       <ScrollView showsVerticalScrollIndicator={false} style={styles.scroll}>
@@ -183,17 +139,34 @@ export default function Home({ navigation }) {
                   : "flex"
               }
               key={item.id}
-              width={110}
+              width={100}
             >
               <TouchableOpacity
                 price={item.price}
                 onPress={() =>
                   navigation.navigate("Checkout", {
-                    id: item.id,
-                    title: item.name,
-                    source: item.imagem,
-
-                    price: item.price,
+                    imagem: item.imagem,
+                    imagem_small: JSON.stringify(item.imagem_small).replace(
+                      /"/g,
+                      ""
+                    ),
+                    nome: item.nome,
+                    status: item.status,
+                    jogo_id: item.id,
+                    descricao: item.descricao,
+                    cota_total: JSON.stringify(item.cota_total).replace(
+                      /"/g,
+                      ""
+                    ),
+                    valor: item.valor,
+                    premiacao: item.premiacao,
+                    arquivos: item.uploads ? item.uploads : null,
+                    dezenas: item.dezenas,
+                    premiacao: item.premiacao,
+                    concurso: item.concurso,
+                    data: item.data,
+                    cotas: item.cotas,
+                    semana: item.semana,
                   })
                 }
                 style={styles.categorieTouch}
@@ -236,51 +209,37 @@ export default function Home({ navigation }) {
           showsHorizontalScrollIndicator={false}
           data={jogos}
           renderItem={({ item }) => (
-            <Box
-              display={
-                item.imagem == null
-                  ? "none"
-                  : item.imagem_small == null
-                  ? "none"
-                  : "flex"
+            <New
+              dezenas={item.dezenas}
+              premio={item.premiacao}
+              cover={item.imagem}
+              name={item.nome}
+              status={item.status}
+              valor={item.valor}
+              description={item.descricao}
+              onPress={() =>
+                navigation.navigate("Checkout", {
+                  imagem: item.imagem,
+                  imagem_small: JSON.stringify(item.imagem_small).replace(
+                    /"/g,
+                    ""
+                  ),
+                  nome: item.nome,
+                  status: item.status,
+                  jogo_id: item.id,
+                  descricao: item.descricao,
+                  cota_total: JSON.stringify(item.cota_total).replace(/"/g, ""),
+                  valor: item.valor,
+                  premiacao: item.premiacao,
+                  arquivos: item.uploads ? item.uploads : null,
+                  dezenas: item.dezenas,
+                  premiacao: item.premiacao,
+                  concurso: item.concurso,
+                  data: item.data,
+                  cotas: item.cotas,
+                })
               }
-              key={item.id}
-            >
-              <New
-                dezenas={item.dezenas}
-                premio={item.premiacao}
-                cover={item.imagem}
-                name={item.nome}
-                status={item.status}
-                valor={item.valor}
-                description={item.descricao}
-                onPress={() =>
-                  navigation.navigate("Detalhes", {
-                    imagem: item.imagem,
-                    imagem_small: JSON.stringify(item.imagem_small).replace(
-                      /"/g,
-                      ""
-                    ),
-                    nome: item.nome,
-                    status: item.status,
-                    jogo_id: item.id,
-                    descricao: item.descricao,
-                    cota_total: JSON.stringify(item.cota_total).replace(
-                      /"/g,
-                      ""
-                    ),
-                    valor: item.valor,
-                    premiacao: item.premiacao,
-                    arquivos: item.uploads ? item.uploads : null,
-                    dezenas: item.dezenas,
-                    premiacao: item.premiacao,
-                    concurso: item.concurso,
-                    data: item.data,
-                    cotas: item.cotas,
-                  })
-                }
-              />
-            </Box>
+            />
           )}
         />
       </ScrollView>

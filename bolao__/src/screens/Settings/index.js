@@ -18,20 +18,22 @@ import {
 import { AuthContext } from "../../context/auth";
 import { BackgroundPrimary } from "../../components/Colors";
 import { useIsFocused } from "@react-navigation/native";
+import { token } from "../../components/hooks/asyncStorage";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 export default function Settings({ navigation }) {
-  const { ShowTab, PutsignedIn, signedIn } = useContext(AuthContext);
-  const login = false;
+  const { ShowTab, PutsignedIn, signedIn, user, postUser } =
+    useContext(AuthContext);
 
   useEffect(() => {
     if (isFocused) {
       ShowTab("visible");
     }
   });
-  function Signedout() {
+
+  function sair() {
     PutsignedIn(false);
-    signedIn;
   }
-  console.log(signedIn);
+
   const isFocused = useIsFocused();
   return (
     <SafeAreaView style={styles.Container}>
@@ -43,25 +45,20 @@ export default function Settings({ navigation }) {
           borderColor={Primary}
           size="lg"
           source={{
-            uri: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=687&q=80",
+            uri: "https://yt3.ggpht.com/eULZKQKOu5C6OTPyEdw_vTEsJ2zgnoZSMSwVRuDvk2Hm8qmsovMA7KLcHwwBDcDlME-UfyKb=s88-c-k-c0x00ffffff-no-rj",
           }}
         />
         <Box style={styles.avatar}>
-          <Text style={styles.name}>
-            &nbsp; Bruno Matheus &nbsp;
-            <Text style={styles.star}>
-              5 <AntDesign name="star" color={"gold"} />
-            </Text>
-          </Text>
+          <Text style={styles.name}>&nbsp; {user[0].nome}&nbsp;</Text>
         </Box>
 
         <HStack style={styles.header}>
-          <Text style={styles.subTitle}>(87)988755944</Text>
-          <Text style={styles.subTitle}>brunoedif@gmail.com</Text>
+          <Text style={styles.subTitle}>{user[0].telefone}</Text>
+          <Text style={styles.subTitle}>{user[0].email}</Text>
         </HStack>
         <Divider width={"90%"} alignSelf={"center"} />
         <Text style={styles.share}>
-          Compartilhe com amigos e ganhe pontos Grupou &nbsp;
+          Compartilhe com amigos e ganhe pontos &nbsp;
           <FontAwesome name="share" size={15} color={Primary} />
         </Text>
       </Box>
@@ -107,24 +104,12 @@ export default function Settings({ navigation }) {
           </Box>
           <AntDesign name="right" size={20} color="black" />
         </TouchableOpacity>
+
         <Divider />
         <TouchableOpacity
-          onPress={() => navigation.navigate("AddProduct")}
+          onPress={() => navigation.navigate("Profile")}
           style={styles.options}
         >
-          <Box flexDirection={"row"}>
-            <MaterialIcons
-              style={styles.content}
-              name="group-add"
-              size={20}
-              color="black"
-            />
-            <Text style={styles.text}>Criar grupo</Text>
-          </Box>
-          <AntDesign name="right" size={20} color="black" />
-        </TouchableOpacity>
-        <Divider />
-        <TouchableOpacity style={styles.options}>
           <Box flexDirection={"row"}>
             <MaterialIcons
               style={styles.content}
@@ -132,7 +117,23 @@ export default function Settings({ navigation }) {
               size={20}
               color="black"
             />
-            <Text style={styles.text}>Meus Grupos</Text>
+            <Text style={styles.text}>Meus Bilhetes</Text>
+          </Box>
+          <AntDesign name="right" size={20} color="black" />
+        </TouchableOpacity>
+        <Divider />
+        <TouchableOpacity
+          style={styles.options}
+          onPress={() => navigation.navigate("Result")}
+        >
+          <Box flexDirection={"row"}>
+            <MaterialIcons
+              style={styles.content}
+              name="help-outline"
+              size={20}
+              color="black"
+            />
+            <Text style={styles.text}>Resultados</Text>
           </Box>
           <AntDesign name="right" size={20} color="black" />
         </TouchableOpacity>
@@ -150,7 +151,7 @@ export default function Settings({ navigation }) {
           <AntDesign name="right" size={20} color="black" />
         </TouchableOpacity>
         <Divider />
-        <TouchableOpacity style={styles.options} onPress={Signedout}>
+        <TouchableOpacity style={styles.options} onPress={sair}>
           <Box flexDirection={"row"}>
             <MaterialIcons
               style={styles.content}

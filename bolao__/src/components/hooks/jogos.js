@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react";
+import React from "react";
 import axios from "axios";
-
-export function JogosApi(url) {
+import { useState, useEffect } from "react";
+export function JogoApi(url) {
   const [jogos, setJogos] = useState({});
   const [loading, setLoading] = useState(true);
 

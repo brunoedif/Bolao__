@@ -16,6 +16,10 @@ import { BackgroundPrimary, TextSubTitle } from "../components/Colors";
 import { Reset } from "../screens/Reset";
 import { AuthContext } from "../context/auth";
 import { ProfileInfo } from "../screens/Informations";
+import Result from "../screens/Result";
+import Pix from "../screens/Pix";
+import Activity from "../screens/Pix/activity";
+
 const Stack = createNativeStackNavigator();
 
 export default function Routes() {
@@ -92,7 +96,7 @@ export default function Routes() {
             options={{
               headerBackTitleVisible: false,
 
-              title: "Detalhes da assinatura",
+              title: "Detalhes do bilhete",
               headerStyle: {
                 backgroundColor: BackgroundPrimary,
               },
@@ -123,8 +127,52 @@ export default function Routes() {
             }}
           />
           <Stack.Screen
+            name="Pix"
+            component={Pix}
+            options={{
+              headerBackTitleVisible: false,
+
+              title: "Adicionar saldo",
+              headerStyle: {
+                backgroundColor: BackgroundPrimary,
+              },
+              headerTintColor: TextSubTitle,
+
+              headerTitleStyle: {
+                fontWeight: "bold",
+                alignSelf: "center",
+              },
+            }}
+          />
+          <Stack.Screen
+            name="Activity"
+            component={Activity}
+            options={{
+              headerBackTitleVisible: false,
+
+              title: "Adicionar saldo",
+              headerStyle: {
+                backgroundColor: BackgroundPrimary,
+              },
+              headerTintColor: TextSubTitle,
+
+              headerTitleStyle: {
+                fontWeight: "bold",
+                alignSelf: "center",
+              },
+            }}
+          />
+          <Stack.Screen
             name="Profile"
             component={Profile}
+            options={{
+              headerShown: false,
+              title: "Perfil",
+            }}
+          />
+          <Stack.Screen
+            name="Result"
+            component={Result}
             options={{
               headerShown: false,
               title: "Perfil",

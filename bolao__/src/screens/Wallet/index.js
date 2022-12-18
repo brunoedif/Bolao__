@@ -1,5 +1,5 @@
 import React, { useState, useContext, useEffect } from "react";
-import { Switch } from "react-native";
+import { Switch, TouchableOpacity } from "react-native";
 import {
   Feather,
   MaterialCommunityIcons,
@@ -43,20 +43,14 @@ import {
 } from "../../components/Colors";
 import creditCard from "../../../assets/img/credit-card.png";
 import { AuthContext } from "../../context/auth";
-import { useIsFocused } from "@react-navigation/native";
+import { useIsFocused, useNavigation } from "@react-navigation/native";
 import { Image } from "native-base";
 
-export default function Wallet(route, navigation) {
-  const { ShowTab, user, getUser } = useContext(AuthContext);
-  const wallet = user.carteira;
-  useEffect(() => {
-    if (isFocused) {
-      ShowTab("visible");
-    }
-  });
-  const isFocused = useIsFocused();
-
-  const [isVisible, setIsVisible] = useState(true);
+export default function Wallet(route) {
+  const navigation = useNavigation();
+  const { user, ShowTab } = useContext(AuthContext);
+  const [load, setLoad] = useState(true);
+  const [isVisible, setIsVisible] = useState(false);
   const [useBalance, setUseBalance] = useState(true);
 
   function handleToggleVisibility() {
@@ -75,8 +69,8 @@ export default function Wallet(route, navigation) {
   }
 
   useEffect(() => {
-    getUser(user.id);
-  }, []);
+    ShowTab("visible");
+  });
 
   return (
     <Wrapper>
@@ -88,8 +82,11 @@ export default function Wallet(route, navigation) {
 
           <BalanceContainer>
             <Value>
-              R$ {wallet ? wallet : 0}
-              <Bold></Bold>
+              R$
+              <Bold>
+                {isVisible ? user[0].carteira : "----"}
+                {isVisible ? ",00" : <></>}
+              </Bold>
             </Value>
 
             <EyeButton onPress={handleToggleVisibility}>
@@ -103,12 +100,21 @@ export default function Wallet(route, navigation) {
 
           <Actions>
             <Action>
-              <MaterialCommunityIcons
-                name="cash"
-                size={28}
-                color={BackgroundSecondary}
-              />
-              <ActionLabel>Adicionar</ActionLabel>
+              <TouchableOpacity
+                onPress={() => navigation.navigate("Pix")}
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                }}
+              >
+                <MaterialCommunityIcons
+                  name="cash"
+                  size={28}
+                  color={BackgroundSecondary}
+                />
+                <ActionLabel>Adicionar</ActionLabel>
+              </TouchableOpacity>
             </Action>
           </Actions>
         </HeaderContainer>
@@ -142,7 +148,9 @@ export default function Wallet(route, navigation) {
 
           <AddButton>
             <AntDesign name="pluscircleo" size={30} color={Primary} />
-            <AddLabel>Adicionar Saldo</AddLabel>
+            <TouchableOpacity onPress={() => navigation.navigate("Pix")}>
+              <AddLabel>Adicionar Saldo</AddLabel>
+            </TouchableOpacity>
           </AddButton>
         </Card>
 

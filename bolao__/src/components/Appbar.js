@@ -12,8 +12,8 @@ import { BackgroundSecondary, Primary } from "./Colors";
 
 export default function Appbar() {
   const navigation = useNavigation();
-  const { screen } = useContext(AuthContext);
-  const [selected, setSelected] = useState("Search");
+  const { PutScreen, screen } = useContext(AuthContext);
+  const [selected, setSelected] = useState("Home");
 
   function PutSelected(key) {
     setSelected(key);

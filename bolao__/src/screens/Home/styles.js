@@ -33,7 +33,7 @@ export default StyleSheet.create({
   },
   Header: {
     width: "100%",
-    height: "25%",
+    height: "10%",
     paddingHorizontal: 10,
     paddingBottom: 20,
 
@@ -171,8 +171,8 @@ export default StyleSheet.create({
     borderRadius: 20,
   },
   cardImageLeft: {
-    height: "90%",
-    width: "90%",
+    height: "95%",
+    width: "85%",
 
     alignSelf: "center",
   },
@@ -187,7 +187,7 @@ export default StyleSheet.create({
     color: TextTertiary,
     fontSize: SecondaryFontSize,
     paddingTop: 20,
-    paddingBottom: 20,
+    paddingBottom: 25,
   },
   subTitle: {
     fontFamily: PrimaryFontFamily,
@@ -220,6 +220,7 @@ export default StyleSheet.create({
   flatLabel: {
     justifyContent: "space-between",
     flexDirection: "row",
+    marginTop: 10,
   },
 
   lastContainer: {

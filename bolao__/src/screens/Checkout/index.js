@@ -1,6 +1,15 @@
 import React, { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../../context/auth";
-
+import {
+  Alert,
+  Button,
+  Center,
+  CloseIcon,
+  IconButton,
+  Modal,
+  useDisclose,
+  VStack,
+} from "native-base";
 import { View, TouchableOpacity, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Box, Image, Text, Avatar, Divider, HStack } from "native-base";
@@ -10,29 +19,49 @@ import { Last } from "./components/Consts";
 import {
   BackgroundPrimary,
   BackgroundSecondary,
+  Error,
   Primary,
   TextTertiary,
 } from "../../components/Colors";
-import { JogosApi } from "../../components/hooks/JogoApi";
+
 export default function Checkout({ route, navigation }) {
-  const { jogos, loading } = JogosApi("https://rutherles.site/api/jogos");
-  const { id, title, price, source, places } = route.params;
+  const {
+    imagem,
+    imagem_small,
+    nome,
+    status,
+    jogo_id,
+    descricao,
+    cota_total,
+    valor,
+    premiacao,
+    arquivos,
+    dezenas,
+    semana,
+    concurso,
+    data,
+    cotas,
+  } = route.params;
   const [count, setCount] = useState(1);
   const [countMonths, setCountMonths] = useState(1);
-  const data = Last.map((item) => item);
-  console.log(id);
-  function handleClickAddPlace() {
-    if (count < places) {
+  const { isOpen, onOpen, onClose } = useDisclose();
+
+  const total = valor * count * countMonths;
+  const { user } = useContext(AuthContext);
+  const first = user[0].nome.split(" ")[0];
+  const [wallet, setWallet] = useState(user[0].carteira);
+  function handleClickAddQuotes() {
+    if (count < cota_total) {
       setCount(count + 1);
     }
   }
-  function handleClickSubtractPlace() {
+  function handleClickSubtractQuotes() {
     if (count > 1) {
       setCount(count - 1);
     }
   }
   function handleClickAddMonth() {
-    if (countMonths < 5) {
+    if (countMonths < semana) {
       setCountMonths(countMonths + 1);
     }
   }
@@ -48,6 +77,17 @@ export default function Checkout({ route, navigation }) {
     ShowTab("none");
   });
 
+  function Buy() {
+    setWallet(wallet - total);
+    onClose();
+    alert("Compra realizada com sucesso!");
+    navigation.navigate("Profile");
+  }
+  function RechargeWallet() {
+    onClose();
+
+    navigation.navigate("Wallet");
+  }
   return (
     <SafeAreaView backgroundColor={BackgroundPrimary}>
       <ScrollView
@@ -66,20 +106,28 @@ export default function Checkout({ route, navigation }) {
             borderRadius={20}
             alignItems={"center"}
             style={styles.cardHost}
-            width={"45 %"}
+            width={150}
             height={150}
             justifyContent={"center"}
           >
-            <TouchableOpacity key={data.key1} style={styles.productCard}>
+            <TouchableOpacity style={styles.productCard}>
               <Image
-                key={data.key2}
                 style={styles.lastImage}
+                source={
+                  nome == "QUINA"
+                    ? require("../../../assets/img/daylyq.png")
+                    : nome == "MEGA-SENA"
+                    ? require("../../../assets/img/daylyms.png")
+                    : nome == "LOTOF\u00c1CIL"
+                    ? require("../../../assets/img/daylylf.png")
+                    : nome == "LOTECA"
+                    ? require("../../../assets/img/daylylt.png")
+                    : nome == "DUPLA SENA"
+                    ? require("../../../assets/img/daylyds.png")
+                    : { uri: imagem_small }
+                }
                 alt=""
-                source={source}
               />
-              <Text key={data.key3} style={styles.cardProductInfoName}>
-                {title}
-              </Text>
             </TouchableOpacity>
           </Box>
           <Box
@@ -87,23 +135,23 @@ export default function Checkout({ route, navigation }) {
             borderRadius={20}
             alignItems={"center"}
             style={styles.cardHost}
-            width={"45 %"}
+            width={150}
             height={150}
             justifyContent={"center"}
           >
             <Avatar
-              style={styles.avatar}
+              mt={4}
+              alignSelf={"center"}
+              borderWidth={3}
+              borderColor={Primary}
+              size="lg"
               source={{
-                uri: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=687&q=80",
+                uri: "https://yt3.ggpht.com/eULZKQKOu5C6OTPyEdw_vTEsJ2zgnoZSMSwVRuDvk2Hm8qmsovMA7KLcHwwBDcDlME-UfyKb=s88-c-k-c0x00ffffff-no-rj",
               }}
-            ></Avatar>
-            <Box flexDirection={"row"} alignItems={"center"}>
-              <Text px={2} style={styles.cardInfoName}>
-                4.5
-              </Text>
-              <AntDesign name="star" size={14} color={Primary} />
+            />
+            <Box style={styles.avatar}>
+              <Text style={styles.cardInfoName}> {first} </Text>
             </Box>
-            <Text style={styles.cardInfo}>Manuele Vitória</Text>
           </Box>
         </Box>
 
@@ -115,10 +163,10 @@ export default function Checkout({ route, navigation }) {
           style={styles.productTitle}
         >
           <Text key={data.key6} style={styles.cardInfo}>
-            Mensalidade:
+            Valor (cota):
           </Text>
           <Text key={data.key6} style={styles.cardInfo}>
-            R$ {price}
+            R$ {valor}
           </Text>
         </Box>
         <Divider color={TextTertiary} marginVertical={15} />
@@ -130,7 +178,7 @@ export default function Checkout({ route, navigation }) {
           style={styles.productTitle}
         >
           <Text key={data.key6} style={styles.cardInfo}>
-            Vagas:
+            Cotas:
           </Text>
 
           <HStack
@@ -139,7 +187,7 @@ export default function Checkout({ route, navigation }) {
             justifyContent={"space-between"}
           >
             <TouchableOpacity
-              onPress={handleClickSubtractPlace}
+              onPress={handleClickSubtractQuotes}
               color={TextTertiary}
               style={styles.buttom}
             >
@@ -153,7 +201,7 @@ export default function Checkout({ route, navigation }) {
               {count}
             </Text>
             <TouchableOpacity
-              onPress={handleClickAddPlace}
+              onPress={handleClickAddQuotes}
               color={TextTertiary}
               style={styles.buttom}
             >
@@ -173,7 +221,7 @@ export default function Checkout({ route, navigation }) {
           style={styles.productTitle}
         >
           <Text key={data.key6} style={styles.cardInfo}>
-            Duração:
+            Duração (sorteios):
           </Text>
           <HStack
             style={styles.placesButtons}
@@ -215,10 +263,38 @@ export default function Checkout({ route, navigation }) {
           style={styles.productTitle}
         >
           <Text key={data.key6} style={styles.cardInfo}>
-            Acesso:
+            Dezenas:
           </Text>
           <Text key={data.key6} style={styles.cardInfo}>
-            Senha por Email
+            {dezenas}
+          </Text>
+        </Box>
+        <Divider marginVertical={15} />
+        <Box
+          px={4}
+          flexDirection={"row"}
+          justifyContent={"space-between"}
+          style={styles.productTitle}
+        >
+          <Text key={data.key6} style={styles.cardInfo}>
+            Premiação:
+          </Text>
+          <Text key={data.key6} style={styles.cardInfo}>
+            {premiacao}
+          </Text>
+        </Box>
+        <Divider marginVertical={15} />
+        <Box
+          px={4}
+          flexDirection={"row"}
+          justifyContent={"space-between"}
+          style={styles.productTitle}
+        >
+          <Text key={data.key6} style={styles.cardInfo}>
+            Data limite:
+          </Text>
+          <Text key={data.key6} style={styles.cardInfo}>
+            {data}
           </Text>
         </Box>
         <Divider marginVertical={15} />
@@ -227,21 +303,13 @@ export default function Checkout({ route, navigation }) {
           <Text pb={2} style={styles.cardInfoResumeTitle}>
             Descrição:
           </Text>
-          <Text style={styles.cardInfo}>
-            O administrador não forneceu nenhuma descrição para este grupo.
-          </Text>
+          <Text style={styles.cardInfo}>{descricao}</Text>
         </Box>
         <Box px={4} py={2} my={4} backgroundColor={BackgroundSecondary}>
           <Text pb={2} style={styles.cardInfoResume}>
-            Regras:
+            Arquivos:
           </Text>
-          <Text style={styles.cardInfo}>
-            Não compartilhe a senha com ninguém fora deste grupo de assinatura.{" "}
-            {"\n"}
-            Não utilize esta conta compartilhada para postar em meu nome do
-            administrador. {"\n"}
-            Não altere a senha do grupo. {"\n"}
-          </Text>
+          <Text style={styles.cardInfo}>{arquivos}</Text>
         </Box>
       </ScrollView>
 
@@ -261,16 +329,67 @@ export default function Checkout({ route, navigation }) {
           style={styles.productTitle}
         >
           <Text key={data.key6} style={styles.cardInfoResumeTitle}>
-            Total da inscrição:
+            Total do bilhete:
           </Text>
           <Text key={data.key6} style={styles.cardInfoResume}>
-            R$ {data[0].price * count * countMonths}
+            R$ {total}
           </Text>
         </Box>
-        <TouchableOpacity style={styles.infoButton}>
+        <TouchableOpacity onPress={onOpen} style={styles.infoButton}>
           <Text style={styles.infoText}>Participar</Text>
         </TouchableOpacity>
       </Box>
+      {wallet < total ? (
+        <Center>
+          <Modal isOpen={isOpen} onClose={onClose}>
+            <Modal.Content>
+              <Modal.CloseButton />
+              <Modal.Header fontSize="4xl" fontWeight="bold">
+                Ops! algo deu errado!
+              </Modal.Header>
+
+              <Modal.Body>
+                O saldo da sua conta é insuficiente para participar desse bolão.
+                Deseja recarregar sua conta?
+              </Modal.Body>
+              <Modal.Footer>
+                <Button variant="unstyled" mr="1" onPress={onClose}>
+                  Cancelar
+                </Button>
+                <Button colorScheme="error" onPress={RechargeWallet}>
+                  Recarregar
+                </Button>
+              </Modal.Footer>
+            </Modal.Content>
+          </Modal>
+        </Center>
+      ) : (
+        <Center>
+          <Modal isOpen={isOpen} onClose={onClose}>
+            <Modal.Content width={"70%"}>
+              <Modal.CloseButton />
+              <Modal.Header fontSize="4xl" fontWeight="bold">
+                Finalizar compra?
+              </Modal.Header>
+
+              <Modal.Body fontSize="4x2">
+                <Text>
+                  O saldo da sua conta é de R$ {wallet}. Deseja finalizar a
+                  compra?
+                </Text>
+              </Modal.Body>
+              <Modal.Footer>
+                <Button variant="unstyled" mr="1" onPress={onClose}>
+                  Cancel
+                </Button>
+                <Button backgroundColor={Primary} onPress={Buy}>
+                  Confirmar
+                </Button>
+              </Modal.Footer>
+            </Modal.Content>
+          </Modal>
+        </Center>
+      )}
     </SafeAreaView>
   );
 }

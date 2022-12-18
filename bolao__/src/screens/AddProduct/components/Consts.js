@@ -5,7 +5,7 @@ const last4 = require("../../../../assets/img/antivirus.png");
 const last5 = require("../../../../assets/img/software.png");
 const last6 = require("../../../../assets/img/VPN.png");
 const height = Math.floor(Math.random() * 100 + 150);
-console.log(height);
+
 export const Touchables = [
   {
     title: "Todos",

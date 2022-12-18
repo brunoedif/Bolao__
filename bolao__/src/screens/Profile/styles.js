@@ -44,7 +44,7 @@ export default StyleSheet.create({
     fontFamily: PrimaryFontFamily,
     fontSize: PrimaryFontSize,
     marginTop: 15,
-    paddingHorizontal: 10,
+    textAlign: "center",
   },
   options: {
     flexDirection: "row",

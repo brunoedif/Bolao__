@@ -40,25 +40,25 @@ import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 export function ProfileInfo({ navigation }) {
   const [edit, setEdit] = useState(true);
-  const { PutInformacoes, email, ShowTab } = useContext(AuthContext);
+  const { user, ShowTab } = useContext(AuthContext);
   const {
     control,
     handleSubmit,
     formState: { errors },
   } = useForm({
     defaultValues: {
-      name: "",
-      phone: "",
+      nome: "",
+      telefone: "",
       email: "",
-      password: "",
-      rpassword: "",
+      senha: "",
+      rsenha: "",
       cep: "",
-      adress: "",
+      enderco: "",
       date: "",
       cpf: "",
-      city: "",
-      district: "",
-      state: "",
+      cidade: "",
+      bairro: "",
+      estado: "",
     },
   });
   useEffect(() => {
@@ -66,33 +66,12 @@ export function ProfileInfo({ navigation }) {
   });
 
   function handleRegister(data) {
+    console.log(data);
     PutInformacoes([data.Nome, data.Telefone, data.Senha, data.Rsenha]);
   }
 
-  const [user, setUser] = React.useState();
   const [loader, setloader] = React.useState(false);
   const [loop, setLoop] = useState(false);
-  let users = "";
-
-  if (loader) {
-    users = JSON.parse(user);
-  }
-  useEffect(() => {
-    const getData = async () => {
-      try {
-        const value = await AsyncStorage.getItem("@user");
-        if (value !== null) {
-          setUser(value);
-          setloader(true);
-          setLoop(true);
-        }
-      } catch (e) {
-        // error reading value
-      }
-    };
-
-    getData();
-  });
 
   var data = {};
   if (loop) {
@@ -138,7 +117,7 @@ export function ProfileInfo({ navigation }) {
                       marginBottom={item.marginBottom}
                       height={item.height}
                       onChangeText={onChange}
-                      value={data[item.name]}
+                      value={user[0][item.name]}
                       placeholder={item.placeholder}
                       autoCapitalize={item.auto}
                       autoCorrect={false}

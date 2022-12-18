@@ -35,8 +35,8 @@ export default StyleSheet.create({
     backgroundColor: TextSecondary,
   },
   avatar: {
-    width: 40,
-    height: 40,
+    alignSelf: "center",
+    marginTop: 10,
   },
   logoHead: {
     marginTop: "10%",
@@ -335,8 +335,8 @@ export default StyleSheet.create({
     paddingBottom: 20,
   },
   lastImage: {
-    width: 80,
-    height: 60,
+    width: 120,
+    height: 120,
   },
   lastContent: {
     width: "45%",

@@ -10,7 +10,7 @@ import {
   Image,
 } from "native-base";
 import React, { useContext, useEffect } from "react";
-import { View, SafeAreaView, TouchableOpacity } from "react-native";
+import { View, SafeAreaView, TouchableOpacity, StyleSheet } from "react-native";
 import styles from "./styles";
 import {
   MaterialIcons,
@@ -29,15 +29,17 @@ import { AuthContext } from "../../context/auth";
 import { BackgroundPrimary } from "../../components/Colors";
 import { Group } from "./components/Consts";
 import { useIsFocused } from "@react-navigation/native";
+import stylesnew from "./components/New";
 export default function Profile({ navigation }) {
-  const { ShowTab, informacoes } = useContext(AuthContext);
-
+  const { ShowTab, user, bilhete } = useContext(AuthContext);
+  const jogos = bilhete;
   useEffect(() => {
     if (isFocused) {
       ShowTab("visible");
     }
   });
   const isFocused = useIsFocused();
+
   return (
     <SafeAreaView style={styles.Container}>
       <Box style={styles.card} backgroundColor={BackgroundSecondary}>
@@ -48,25 +50,20 @@ export default function Profile({ navigation }) {
           borderColor={Primary}
           size="lg"
           source={{
-            uri: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=687&q=80",
+            uri: "https://yt3.ggpht.com/eULZKQKOu5C6OTPyEdw_vTEsJ2zgnoZSMSwVRuDvk2Hm8qmsovMA7KLcHwwBDcDlME-UfyKb=s88-c-k-c0x00ffffff-no-rj",
           }}
         />
         <Box style={styles.avatar}>
-          <Text style={styles.name}>
-            &nbsp; Bruno Matheus &nbsp;
-            <Text style={styles.star}>
-              5 <AntDesign name="star" color={"gold"} />
-            </Text>
-          </Text>
+          <Text style={styles.name}>&nbsp; {user[0].nome}&nbsp;</Text>
         </Box>
 
         <HStack style={styles.header}>
-          <Text style={styles.subTitle}>(87)988755944</Text>
-          <Text style={styles.subTitle}>brunoedif@gmail.com</Text>
+          <Text style={styles.subTitle}>{user[0].telefone}</Text>
+          <Text style={styles.subTitle}>{user[0].email}</Text>
         </HStack>
         <Divider width={"90%"} alignSelf={"center"} />
         <Text style={styles.share}>
-          Compartilhe com amigos e ganhe pontos Grupou &nbsp;
+          Compartilhe com amigos e ganhe pontos &nbsp;
           <FontAwesome name="share" size={15} color={Primary} />
         </Text>
       </Box>
@@ -77,26 +74,66 @@ export default function Profile({ navigation }) {
         </Text>
 
         <FlatList
-          style={styles.productContainer}
-          horizontal={false}
           numColumns={2}
-          showsHorizontalScrollIndicator={false}
-          data={Group}
+          w={"100%"}
+          px={"5px"}
+          style={styles.lastContainer}
+          horizontal={false}
+          showsVerticalScrollIndicator={false}
+          data={jogos}
           renderItem={({ item }) => (
-            <TouchableOpacity key={item.key1} style={styles.productCard}>
+            <TouchableOpacity
+              onPress={() =>
+                navigation.navigate("Checkout", {
+                  imagem: item.imagem,
+                  imagem_small: JSON.stringify(item.imagem_small).replace(
+                    /"/g,
+                    ""
+                  ),
+                  nome: item.nome,
+                  status: item.status,
+                  jogo_id: item.id,
+                  descricao: item.descricao,
+                  cota_total: JSON.stringify(item.cota_total).replace(/"/g, ""),
+                  valor: item.valor,
+                  premiacao: item.premiacao,
+                  arquivos: item.uploads ? item.uploads : null,
+                  dezenas: item.dezenas,
+                  premiacao: item.premiacao,
+                  concurso: item.concurso,
+                  data: item.data,
+                  cotas: item.cotas,
+                  semana: item.semana,
+                })
+              }
+              style={stylesnew.container}
+            >
               <Image
-                key={item.key2}
-                style={styles.imageCard}
                 alt=""
-                source={item.source}
+                source={{
+                  uri: item.imagem,
+                }}
+                style={stylesnew.cover}
               />
-              <Text key={item.key3} style={styles.titleCard}>
-                {item.name}
-              </Text>
-              <View key={item.key4} style={styles.infoContainer}>
-                <Text key={item.key6} style={styles.subTitleCard}>
-                  Preço: R$ {item.priceDescription}
-                </Text>
+
+              <View style={stylesnew.content}>
+                <Text style={stylesnew.title}>{item.nome}</Text>
+
+                <View style={stylesnew.dot}></View>
+
+                <Text style={stylesnew.badge}>{item.status}</Text>
+              </View>
+
+              <Text style={stylesnew.description}>{item.descricao}</Text>
+
+              <View style={stylesnew.footer}>
+                <View style={{ width: "80%" }}>
+                  <Text style={stylesnew.price}>R$ {item.valor}</Text>
+                </View>
+
+                <View style={{ width: "20%" }}>
+                  <Ionicons name="ios-add-circle" size={24} color="black" />
+                </View>
               </View>
             </TouchableOpacity>
           )}

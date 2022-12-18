@@ -25,7 +25,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Touchables } from "./components/Consts";
 import { Last } from "./components/Consts";
 import { useNavigation } from "@react-navigation/native";
-import { JogosApi } from "../../components/hooks/JogoApi";
+import { JogoApi } from "../../components/hooks/asyncStorage";
 import {
   BackgroundPrimary,
   BackgroundSecondary,
@@ -35,21 +35,22 @@ import {
 } from "../../components/Colors";
 import { useIsFocused } from "@react-navigation/native";
 import New from "./components/New";
+import stylesnew from "./components/New";
 export default function Search() {
-  const { jogos, loading } = JogosApi("https://rutherles.site/api/jogos");
+  const { jogos, loading } = JogoApi("https://rutherles.site/api/jogos");
   const navigation = useNavigation();
   const isFocused = useIsFocused();
   const { ShowTab } = useContext(AuthContext);
-  const [selected, setSelected] = useState(0);
-
+  const [selected, setSelected] = useState("TODOS");
+  const lotofacil = require("../../../assets/img/daylylf.png");
+  const [searchBar, setSearchBar] = useState("");
   function PutSelected(key) {
     setSelected(key);
   }
   useEffect(() => {
-    if (isFocused) {
-      ShowTab("visible");
-    }
-  });
+    ShowTab("visible");
+  }),
+    [isFocused];
 
   return (
     <SafeAreaView style={styles.Container}>
@@ -61,6 +62,8 @@ export default function Search() {
               backgroundColor={BackgroundPrimary}
               width={"100%"}
               height={30}
+              value={searchBar}
+              onChangeText={(text) => setSearchBar(text)}
               InputLeftElement={
                 <Icon
                   as={<MaterialIcons name="search" />}
@@ -69,7 +72,7 @@ export default function Search() {
                   color="muted.400"
                 />
               }
-              placeholder="Pesquisar"
+              placeholder={"Pesquisar"}
             />
           </TouchableOpacity>
 
@@ -85,7 +88,7 @@ export default function Search() {
               <Avatar
                 style={styles.avatar}
                 source={{
-                  uri: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=687&q=80",
+                  uri: "https://yt3.ggpht.com/eULZKQKOu5C6OTPyEdw_vTEsJ2zgnoZSMSwVRuDvk2Hm8qmsovMA7KLcHwwBDcDlME-UfyKb=s88-c-k-c0x00ffffff-no-rj",
                 }}
               ></Avatar>
             </TouchableOpacity>
@@ -136,6 +139,7 @@ export default function Search() {
           />
         </View>
       </View>
+
       <FlatList
         numColumns={2}
         w={"100%"}
@@ -145,16 +149,9 @@ export default function Search() {
         showsVerticalScrollIndicator={false}
         data={jogos}
         renderItem={({ item }) => (
-          <New
-            dezenas={item.dezenas}
-            premio={item.premiacao}
-            cover={item.imagem}
-            name={item.nome}
-            status={item.status}
-            valor={item.valor}
-            description={item.descricao}
+          <TouchableOpacity
             onPress={() =>
-              navigation.navigate("Detalhes", {
+              navigation.navigate("Checkout", {
                 imagem: item.imagem,
                 imagem_small: JSON.stringify(item.imagem_small).replace(
                   /"/g,
@@ -173,9 +170,47 @@ export default function Search() {
                 concurso: item.concurso,
                 data: item.data,
                 cotas: item.cotas,
+                semana: item.semana,
               })
             }
-          />
+            style={StyleSheet.flatten([
+              stylesnew.container,
+              {
+                display:
+                  item.nome == selected || selected == "TODOS"
+                    ? "flex"
+                    : "none",
+              },
+            ])}
+          >
+            <Image
+              alt=""
+              source={{
+                uri: item.imagem,
+              }}
+              style={stylesnew.cover}
+            />
+
+            <View style={stylesnew.content}>
+              <Text style={stylesnew.title}>{item.nome}</Text>
+
+              <View style={stylesnew.dot}></View>
+
+              <Text style={stylesnew.badge}>{item.status}</Text>
+            </View>
+
+            <Text style={stylesnew.description}>{item.descricao}</Text>
+
+            <View style={stylesnew.footer}>
+              <View style={{ width: "80%" }}>
+                <Text style={stylesnew.price}>R$ {item.valor}</Text>
+              </View>
+
+              <View style={{ width: "20%" }}>
+                <Ionicons name="ios-add-circle" size={24} color="black" />
+              </View>
+            </View>
+          </TouchableOpacity>
         )}
       />
     </SafeAreaView>
