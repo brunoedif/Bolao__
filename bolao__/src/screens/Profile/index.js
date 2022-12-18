@@ -9,7 +9,7 @@ import {
   FlatList,
   Image,
 } from "native-base";
-import React, { useContext, useEffect } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { View, SafeAreaView, TouchableOpacity, StyleSheet } from "react-native";
 import styles from "./styles";
 import {
@@ -25,20 +25,41 @@ import {
   Primary,
   TextTertiary,
 } from "../../components/Colors";
+import axios from "axios";
 import { AuthContext } from "../../context/auth";
 import { BackgroundPrimary } from "../../components/Colors";
 import { Group } from "./components/Consts";
-import { useIsFocused } from "@react-navigation/native";
+import { useFocusEffect, useIsFocused } from "@react-navigation/native";
 import stylesnew from "./components/New";
+import { GetUserId } from "../../components/hooks/asyncStorage";
+
 export default function Profile({ navigation }) {
-  const { ShowTab, user, bilhete } = useContext(AuthContext);
-  const jogos = bilhete;
-  useEffect(() => {
-    if (isFocused) {
-      ShowTab("visible");
-    }
-  });
+  const id = GetUserId;
+  const { ShowTab, user, bilhete, GetUser, GetBilhete } =
+    useContext(AuthContext);
+  const [jogos, setJogos] = useState();
   const isFocused = useIsFocused();
+  useEffect(() => {
+    ShowTab("visible");
+    const options4 = {
+      method: "POST",
+      url: "https://rutherles.site/api/compras",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      data: { user_id: user[0].id },
+    };
+
+    axios
+      .request(options4)
+      .then(function (response) {
+        setJogos(response.data.compra.reverse());
+      })
+      .catch(function (error) {
+        console.error(error);
+      });
+  }, [isFocused]);
 
   return (
     <SafeAreaView style={styles.Container}>
@@ -75,11 +96,10 @@ export default function Profile({ navigation }) {
 
         <FlatList
           numColumns={2}
-          w={"100%"}
           px={"5px"}
           style={styles.lastContainer}
-          horizontal={false}
           showsVerticalScrollIndicator={false}
+          scrollEnabled={true}
           data={jogos}
           renderItem={({ item }) => (
             <TouchableOpacity
@@ -94,7 +114,7 @@ export default function Profile({ navigation }) {
                   status: item.status,
                   jogo_id: item.id,
                   descricao: item.descricao,
-                  cota_total: JSON.stringify(item.cota_total).replace(/"/g, ""),
+
                   valor: item.valor,
                   premiacao: item.premiacao,
                   arquivos: item.uploads ? item.uploads : null,

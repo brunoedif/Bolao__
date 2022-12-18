@@ -23,7 +23,10 @@ import {
   Primary,
   TextTertiary,
 } from "../../components/Colors";
-
+import axios from "axios";
+import { useIsFocused } from "@react-navigation/native";
+import { UserApi } from "../../components/hooks/users";
+import { useFocusEffect } from "@react-navigation/native";
 export default function Checkout({ route, navigation }) {
   const {
     imagem,
@@ -45,13 +48,15 @@ export default function Checkout({ route, navigation }) {
   const [count, setCount] = useState(1);
   const [countMonths, setCountMonths] = useState(1);
   const { isOpen, onOpen, onClose } = useDisclose();
-
+  const { ShowTab, GetUser, user } = useContext(AuthContext);
   const total = valor * count * countMonths;
-  const { user } = useContext(AuthContext);
-  const first = user[0].nome.split(" ")[0];
-  const [wallet, setWallet] = useState(user[0].carteira);
+  const [cotes, setCotes] = useState([]);
+  const first = "nome".split(" ")[0];
+  const [wallet, setWallet] = useState(0);
+  const isFocused = useIsFocused();
+  const cotestotal = cotes - count;
   function handleClickAddQuotes() {
-    if (count < cota_total) {
+    if (count < cotes) {
       setCount(count + 1);
     }
   }
@@ -71,23 +76,155 @@ export default function Checkout({ route, navigation }) {
     }
   }
 
-  const { ShowTab } = useContext(AuthContext);
-
   useEffect(() => {
     ShowTab("none");
-  });
 
-  function Buy() {
-    setWallet(wallet - total);
-    onClose();
-    alert("Compra realizada com sucesso!");
-    navigation.navigate("Profile");
-  }
+    const options = {
+      method: "GET",
+      url: "https://rutherles.site/api/usuario/" + user[0].id,
+      headers: { "Content-Type": "application/json" },
+    };
+
+    axios
+      .request(options)
+      .then(function (response) {
+        setWallet(response.data[0].carteira);
+      })
+      .catch(function (error) {
+        console.error(error);
+      });
+
+    const GetCotas = {
+      method: "GET",
+      url: "https://rutherles.site/api/jogos/",
+      headers: { "Content-Type": "application/json" },
+    };
+
+    axios
+      .request(GetCotas)
+      .then(function (response) {
+        setCotes(response.data[0].cota_total);
+      })
+      .catch(function (error) {
+        console.error(error);
+      });
+  }, [isFocused]);
+
   function RechargeWallet() {
     onClose();
 
     navigation.navigate("Wallet");
   }
+
+  function comprar() {
+    const options = {
+      method: "POST",
+      url: "https://rutherles.site/api/compra",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      data: {
+        user_id: user[0].id,
+        valor: parseInt(valor),
+        imagem_small: imagem,
+        nome: nome,
+        dezenas: dezenas,
+        data: data,
+        concurso: concurso,
+        premiacao: premiacao,
+      },
+    };
+    axios
+      .request(options)
+      .then(function (response) {})
+      .catch(function (error) {
+        console.error("compra");
+      });
+
+    const storeData = async (value) => {
+      try {
+        const jsonValue = JSON.stringify(value);
+        await AsyncStorage.setItem("@user", jsonValue);
+      } catch (e) {
+        ("   saving error");
+      }
+    };
+
+    const options4 = {
+      method: "POST",
+      url: "https://rutherles.site/api/compras",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      data: { user_id: user[0].id },
+    };
+
+    axios
+      .request(options4)
+      .then(function (response) {
+        storeData(response.data);
+      })
+      .catch(function (error) {
+        console.error("minhas comprar");
+      });
+
+    const options6 = {
+      method: "PUT",
+      url: "https://rutherles.site/api/jogo/" + jogo_id,
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      data: { cota_total: cotestotal },
+    };
+
+    axios
+      .request(options6)
+      .then(function (response) {})
+      .catch(function (error) {});
+
+    const options5 = {
+      method: "POST",
+      url: "https://rutherles.site/api/compras",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      data: { user_id: user[0].id },
+    };
+    axios
+      .request(options5)
+      .then(function (response) {
+        console.log(response.data);
+
+        onClose();
+        navigation.navigate("Profile");
+        alert("Compra realizada com sucesso!");
+      })
+      .catch(function (error) {
+        console.error(error);
+      });
+
+    const putWallet = {
+      method: "PUT",
+      url: "https://rutherles.site/api/usuario/" + user[0].id,
+
+      headers: { "Content-Type": "application/json" },
+      data: { carteira: wallet - total },
+    };
+
+    axios
+      .request(putWallet)
+      .then(function (response) {
+        console.log(response.data);
+      })
+      .catch(function (error) {
+        console.error("wallet");
+      });
+  }
+
   return (
     <SafeAreaView backgroundColor={BackgroundPrimary}>
       <ScrollView
@@ -382,7 +519,7 @@ export default function Checkout({ route, navigation }) {
                 <Button variant="unstyled" mr="1" onPress={onClose}>
                   Cancel
                 </Button>
-                <Button backgroundColor={Primary} onPress={Buy}>
+                <Button backgroundColor={Primary} onPress={comprar}>
                   Confirmar
                 </Button>
               </Modal.Footer>

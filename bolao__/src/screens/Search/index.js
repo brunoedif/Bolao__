@@ -25,7 +25,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Touchables } from "./components/Consts";
 import { Last } from "./components/Consts";
 import { useNavigation } from "@react-navigation/native";
-import { JogoApi } from "../../components/hooks/asyncStorage";
+import { JogoApi } from "../../components/hooks/jogos";
 import {
   BackgroundPrimary,
   BackgroundSecondary,

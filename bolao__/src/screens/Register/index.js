@@ -303,7 +303,7 @@ export function Informacoes({ navigation }) {
       })
       .catch(function (error) {
         setErro("Dados já cadastrados");
-        setload(false);
+        setLoad(false);
       });
   }
 

@@ -9,42 +9,46 @@ export const AuthContext = createContext({});
 
 function AuthProvider({ children }) {
   const navigation = useNavigation();
-
   const [email, setEmail] = useState("");
   const [codigo, setCodigo] = useState("");
-
   const [screen, setScreen] = useState("");
   const [signedIn, setSignedIn] = useState(true);
   const [useras, setUseras] = useState([]);
   const [bilhete, setBilhete] = useState("");
   const [loading, setloading] = useState(false);
   const [myUser, setMyUser] = useState("");
-  const [user, setUser] = useState("");
+  const [userLocal, setUserLocal] = useState("");
   const { id } = GetUserId();
   const [token, setToken] = useState("");
+  const [user, setUser] = useState("");
 
-  //login//
-
-  // ---//
-
+  //get user //
   useEffect(() => {
-    const options = {
-      method: "GET",
-      url: "https://rutherles.site/api/usuario/" + id,
-      headers: { "Content-Type": "application/json" },
-    };
+    function GetUser() {
+      const options = {
+        method: "GET",
+        url: "https://rutherles.site/api/usuario/" + id,
+        headers: { "Content-Type": "application/json" },
+      };
 
-    axios
-      .request(options)
-      .then(function (response) {
-        setUser(response.data);
-        console.log(response.data);
-      })
-      .catch(function (error) {
-        console.error(error);
-      });
+      axios
+        .request(options)
+        .then(function (response) {
+          setUser(response.data);
+          storeDeposito(response.data.deposito);
+          console.log(response.data);
+        })
+        .catch(function (error) {
+          console.error("getuser");
+        });
+    }
+
+    GetUser();
   }, [id]);
+  console.error(id);
+  // ----- //
 
+  //get bilhete //
   useEffect(() => {
     const options = {
       method: "POST",
@@ -64,11 +68,15 @@ function AuthProvider({ children }) {
       .catch(function (error) {});
     setloading(false);
   }, [id]);
+  // --- //
 
+  //show tab //
   function ShowTab(screen) {
     setScreen(screen);
   }
+  // --- //
 
+  //signup //
   function PutEmail(email) {
     setEmail(email);
     if (email) {
@@ -82,29 +90,9 @@ function AuthProvider({ children }) {
       navigation.navigate("Informacoes");
     }
   }
-  function editCarteira(carteira, id) {
-    const options = {
-      method: "PUT",
-      url: "https://rutherles.site/api/usuario/" + id,
-      headers: { Accept: "application/json" },
-      data: { carteira: user.carteira },
-    };
 
-    axios
-      .request(options)
-      .then(function (response) {
-        setUser(response.data);
-      })
-      .catch(function (error) {});
-  }
-  function postUser(data) {
-    setUser(data);
-  }
-  function PutSignup(signup) {
-    if (signup) {
-      setSignedIn(true);
-    }
-  }
+  // --- //
+
   function PutsignedIn(signedIn) {
     if (signedIn == true) {
       setSignedIn(true);
@@ -134,9 +122,10 @@ function AuthProvider({ children }) {
         PutCodigo,
         PutsignedIn,
         PutEmail,
-        editCarteira,
-        PutSignup,
+
         storeDeposito,
+
+        userLocal,
       }}
     >
       {children}

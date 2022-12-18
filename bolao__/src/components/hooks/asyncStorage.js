@@ -3,7 +3,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 
 export function GetUserId() {
-  const [id, setId] = useState(1);
+  const [id, setId] = useState("");
 
   useEffect(() => {
     const getData = async () => {
@@ -11,16 +11,18 @@ export function GetUserId() {
         const value = await AsyncStorage.getItem("@user");
         if (value !== null) {
           let users = JSON.parse(value);
-          console.log(users[0].id);
+
           setId(users[0].id);
         }
       } catch (e) {
-        // error reading value
+        alert(
+          "Não foi possível carregar os dados, verifique sua conexão com a internet"
+        );
       }
     };
 
     getData();
-  }, []);
+  });
 
   return { id };
 }
