@@ -1,58 +1,33 @@
-import { Box, Circle, Divider, StatusBar, Text } from "native-base";
+import { Text } from "native-base";
 import React, { useContext, useEffect } from "react";
 import { ImageBackground, View } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
 import { AuthContext } from "../../context/auth";
-import { JogoApi } from "../../components/hooks/jogos";
-import {
-  HStack,
-  Center,
-  Input,
-  Icon,
-  Avatar,
-  Image,
-  FlatList,
-} from "native-base";
+import { Center, Input, Icon, Avatar, Image, FlatList } from "native-base";
 import styles from "./styles";
-import { MaterialIcons, AntDesign, Ionicons } from "@expo/vector-icons";
+import { MaterialIcons, Ionicons } from "@expo/vector-icons";
 import { TouchableOpacity, StyleSheet } from "react-native";
-import { useState } from "react";
-import { Touchables } from "./components/Consts";
-import { Categories } from "./components/Consts";
-import { Last } from "./components/Consts";
 import { SafeAreaView } from "react-native-safe-area-context";
 import {
   BackgroundPrimary,
   BackgroundSecondary,
-  Border,
-  Error,
-  Primary,
-  TextTertiary,
 } from "../../components/Colors";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useIsFocused } from "@react-navigation/native";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import New from "./components/New";
+import { onProducts } from "../../../services/products";
+import onUser from "../../../services/onUser";
+import { getLocalUser } from "../../../services/asyncStorage";
 export default function Home({ navigation }) {
   const { ShowTab } = useContext(AuthContext);
-  const [selected, setSelected] = useState("1");
-  const { jogos, loading } = JogoApi("https://rutherles.site/api/jogos");
-  const [filter, setFilter] = React.useState();
-  const [filtros, setFiltros] = React.useState();
-  const [loop, setLoop] = React.useState(true);
-
-  let every = loading == false ? jogos : [];
-
-  useEffect((data) => {
+  const { products } = onProducts();
+  const isFocused = useIsFocused();
+  useEffect(() => {
     if (isFocused) {
+      () => getLocalUser();
+
       ShowTab("visible");
-      setSelected(data);
     }
   });
-  const isFocused = useIsFocused();
-  function PutSelected(data) {}
-  const day = every.filter((item) => item);
-
   return (
     <SafeAreaView style={styles.Container}>
       <View style={styles.Header}>
@@ -130,7 +105,7 @@ export default function Home({ navigation }) {
           style={styles.categoriesView}
           horizontal={true}
           showsHorizontalScrollIndicator={false}
-          data={jogos}
+          data={products}
           renderItem={({ item }) => (
             <Center
               display={
@@ -207,7 +182,7 @@ export default function Home({ navigation }) {
           style={styles.lastContainer}
           horizontal={true}
           showsHorizontalScrollIndicator={false}
-          data={jogos}
+          data={products}
           renderItem={({ item }) => (
             <New
               dezenas={item.dezenas}

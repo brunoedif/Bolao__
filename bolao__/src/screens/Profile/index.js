@@ -29,37 +29,26 @@ import axios from "axios";
 import { AuthContext } from "../../context/auth";
 import { BackgroundPrimary } from "../../components/Colors";
 import { Group } from "./components/Consts";
-import { useFocusEffect, useIsFocused } from "@react-navigation/native";
+import { useIsFocused } from "@react-navigation/native";
 import stylesnew from "./components/New";
-import { GetUserId } from "../../components/hooks/asyncStorage";
-
+import onUser from "../../../services/onUser";
+import { onBrought } from "../../../services/brought";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { getLocalUser } from "../../../services/asyncStorage";
+import { onProducts } from "../../../services/products";
 export default function Profile({ navigation }) {
-  const id = GetUserId;
-  const { ShowTab, user, bilhete, GetUser, GetBilhete } =
-    useContext(AuthContext);
+  const user = onUser();
+  const brought = onBrought();
+
+  const { ShowTab } = useContext(AuthContext);
   const [jogos, setJogos] = useState();
   const isFocused = useIsFocused();
   useEffect(() => {
-    ShowTab("visible");
-    const options4 = {
-      method: "POST",
-      url: "https://rutherles.site/api/compras",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      },
-      data: { user_id: user[0].id },
-    };
-
-    axios
-      .request(options4)
-      .then(function (response) {
-        setJogos(response.data.compra.reverse());
-      })
-      .catch(function (error) {
-        console.error(error);
-      });
-  }, [isFocused]);
+    if (isFocused) {
+      () => brought();
+      ShowTab("visible");
+    }
+  });
 
   return (
     <SafeAreaView style={styles.Container}>
@@ -75,12 +64,12 @@ export default function Profile({ navigation }) {
           }}
         />
         <Box style={styles.avatar}>
-          <Text style={styles.name}>&nbsp; {user[0].nome}&nbsp;</Text>
+          <Text style={styles.name}>&nbsp; {user.user.nome}&nbsp;</Text>
         </Box>
 
         <HStack style={styles.header}>
-          <Text style={styles.subTitle}>{user[0].telefone}</Text>
-          <Text style={styles.subTitle}>{user[0].email}</Text>
+          <Text style={styles.subTitle}>{user.user.telefone}</Text>
+          <Text style={styles.subTitle}>{user.user.email}</Text>
         </HStack>
         <Divider width={"90%"} alignSelf={"center"} />
         <Text style={styles.share}>
@@ -100,7 +89,7 @@ export default function Profile({ navigation }) {
           style={styles.lastContainer}
           showsVerticalScrollIndicator={false}
           scrollEnabled={true}
-          data={jogos}
+          data={brought.brougth.reverse()}
           renderItem={({ item }) => (
             <TouchableOpacity
               onPress={() =>

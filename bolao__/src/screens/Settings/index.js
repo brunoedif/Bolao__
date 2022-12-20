@@ -20,9 +20,11 @@ import { BackgroundPrimary } from "../../components/Colors";
 import { useIsFocused } from "@react-navigation/native";
 import { token } from "../../components/hooks/asyncStorage";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import onUser from "../../../services/onUser";
+
 export default function Settings({ navigation }) {
-  const { ShowTab, PutsignedIn, signedIn, user, postUser } =
-    useContext(AuthContext);
+  const { ShowTab, PutsignedIn, signedIn, postUser } = useContext(AuthContext);
+  const user = onUser();
 
   useEffect(() => {
     if (isFocused) {
@@ -31,7 +33,15 @@ export default function Settings({ navigation }) {
   });
 
   function sair() {
-    PutsignedIn(false);
+    removeValue = async () => {
+      try {
+        await AsyncStorage.removeItem("@user");
+      } catch (e) {
+        ("        remove error");
+      }
+
+      console.log("Done.");
+    };
   }
 
   const isFocused = useIsFocused();
@@ -49,12 +59,12 @@ export default function Settings({ navigation }) {
           }}
         />
         <Box style={styles.avatar}>
-          <Text style={styles.name}>&nbsp; {user[0].nome}&nbsp;</Text>
+          <Text style={styles.name}>&nbsp;{user.user.nome} &nbsp;</Text>
         </Box>
 
         <HStack style={styles.header}>
-          <Text style={styles.subTitle}>{user[0].telefone}</Text>
-          <Text style={styles.subTitle}>{user[0].email}</Text>
+          <Text style={styles.subTitle}>{user.user.telefone}</Text>
+          <Text style={styles.subTitle}>{user.user.email}</Text>
         </HStack>
         <Divider width={"90%"} alignSelf={"center"} />
         <Text style={styles.share}>

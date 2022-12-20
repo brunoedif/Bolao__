@@ -1,33 +1,25 @@
 import React, { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../../context/auth";
-import {
-  Alert,
-  Button,
-  Center,
-  CloseIcon,
-  IconButton,
-  Modal,
-  useDisclose,
-  VStack,
-} from "native-base";
+import { Button, Center, Modal, useDisclose } from "native-base";
 import { View, TouchableOpacity, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Box, Image, Text, Avatar, Divider, HStack } from "native-base";
-import { MaterialIcons, AntDesign, Ionicons } from "@expo/vector-icons";
+import { Ionicons } from "@expo/vector-icons";
+import axios from "axios";
 import styles from "./styles";
-import { Last } from "./components/Consts";
+import onUser from "../../../services/onUser";
 import {
   BackgroundPrimary,
   BackgroundSecondary,
-  Error,
   Primary,
   TextTertiary,
 } from "../../components/Colors";
-import axios from "axios";
 import { useIsFocused } from "@react-navigation/native";
-import { UserApi } from "../../components/hooks/users";
-import { useFocusEffect } from "@react-navigation/native";
+import { getBuy } from "../../../services/buy";
+import { getLocalUser } from "../../../services/asyncStorage";
+import { onProducts } from "../../../services/products";
 export default function Checkout({ route, navigation }) {
+  const { localUser } = getLocalUser();
   const {
     imagem,
     imagem_small,
@@ -46,17 +38,22 @@ export default function Checkout({ route, navigation }) {
     cotas,
   } = route.params;
   const [count, setCount] = useState(1);
+  const { user } = onUser();
   const [countMonths, setCountMonths] = useState(1);
   const { isOpen, onOpen, onClose } = useDisclose();
-  const { ShowTab, GetUser, user } = useContext(AuthContext);
-  const total = valor * count * countMonths;
-  const [cotes, setCotes] = useState([]);
-  const first = "nome".split(" ")[0];
-  const [wallet, setWallet] = useState(0);
+  const { ShowTab } = useContext(AuthContext);
+  const [ticket, setTicket] = useState("");
+  const [wallet, setWallet] = useState(user.carteira - ticket);
+
   const isFocused = useIsFocused();
-  const cotestotal = cotes - count;
+  const cotestotal = cota_total - count;
+  console.warn({
+    carteoira: user.carteira,
+    cota_total: cota_total,
+  });
+
   function handleClickAddQuotes() {
-    if (count < cotes) {
+    if (count < cota_total) {
       setCount(count + 1);
     }
   }
@@ -77,47 +74,22 @@ export default function Checkout({ route, navigation }) {
   }
 
   useEffect(() => {
-    ShowTab("none");
+    if (isFocused) {
+      ShowTab("none");
+      () => onProducts;
 
-    const options = {
-      method: "GET",
-      url: "https://rutherles.site/api/usuario/" + user[0].id,
-      headers: { "Content-Type": "application/json" },
-    };
-
-    axios
-      .request(options)
-      .then(function (response) {
-        setWallet(response.data[0].carteira);
-      })
-      .catch(function (error) {
-        console.error(error);
-      });
-
-    const GetCotas = {
-      method: "GET",
-      url: "https://rutherles.site/api/jogos/",
-      headers: { "Content-Type": "application/json" },
-    };
-
-    axios
-      .request(GetCotas)
-      .then(function (response) {
-        setCotes(response.data[0].cota_total);
-      })
-      .catch(function (error) {
-        console.error(error);
-      });
-  }, [isFocused]);
+      setTicket(valor * count * countMonths);
+    }
+  });
 
   function RechargeWallet() {
     onClose();
 
     navigation.navigate("Wallet");
   }
-
-  function comprar() {
-    const options = {
+  const localId = getLocalUser();
+  function setBuy() {
+    const buy = {
       method: "POST",
       url: "https://rutherles.site/api/compra",
       headers: {
@@ -125,7 +97,7 @@ export default function Checkout({ route, navigation }) {
         "Content-Type": "application/json",
       },
       data: {
-        user_id: user[0].id,
+        user_id: user.id,
         valor: parseInt(valor),
         imagem_small: imagem,
         nome: nome,
@@ -133,44 +105,19 @@ export default function Checkout({ route, navigation }) {
         data: data,
         concurso: concurso,
         premiacao: premiacao,
+        jogo_id: jogo_id,
       },
     };
     axios
-      .request(options)
-      .then(function (response) {})
-      .catch(function (error) {
-        console.error("compra");
-      });
-
-    const storeData = async (value) => {
-      try {
-        const jsonValue = JSON.stringify(value);
-        await AsyncStorage.setItem("@user", jsonValue);
-      } catch (e) {
-        ("   saving error");
-      }
-    };
-
-    const options4 = {
-      method: "POST",
-      url: "https://rutherles.site/api/compras",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      },
-      data: { user_id: user[0].id },
-    };
-
-    axios
-      .request(options4)
+      .request(buy)
       .then(function (response) {
-        storeData(response.data);
+        console.log(response.data);
       })
       .catch(function (error) {
-        console.error("minhas comprar");
+        console.error("can not buy");
       });
 
-    const options6 = {
+    const putQuotes = {
       method: "PUT",
       url: "https://rutherles.site/api/jogo/" + jogo_id,
       headers: {
@@ -181,50 +128,49 @@ export default function Checkout({ route, navigation }) {
     };
 
     axios
-      .request(options6)
+      .request(putQuotes)
       .then(function (response) {})
       .catch(function (error) {});
 
-    const options5 = {
+    const options = {
+      method: "PUT",
+      url: "https://rutherles.site/api/usuario/" + user.id,
+      params: { carteira: wallet - ticket },
+      headers: { "Content-Type": "application/json" },
+    };
+
+    axios
+      .request(options)
+      .then(function (response) {
+        console.log(response.data);
+        setWallet(response.data.carteira);
+      })
+      .catch(function (error) {
+        console.error(error);
+      });
+    const putMyBrought = {
       method: "POST",
       url: "https://rutherles.site/api/compras",
       headers: {
         Accept: "application/json",
         "Content-Type": "application/json",
       },
-      data: { user_id: user[0].id },
+      data: { user_id: localId },
     };
     axios
-      .request(options5)
+      .request(putMyBrought)
       .then(function (response) {
         console.log(response.data);
-
         onClose();
         navigation.navigate("Profile");
         alert("Compra realizada com sucesso!");
       })
+
       .catch(function (error) {
         console.error(error);
       });
-
-    const putWallet = {
-      method: "PUT",
-      url: "https://rutherles.site/api/usuario/" + user[0].id,
-
-      headers: { "Content-Type": "application/json" },
-      data: { carteira: wallet - total },
-    };
-
-    axios
-      .request(putWallet)
-      .then(function (response) {
-        console.log(response.data);
-      })
-      .catch(function (error) {
-        console.error("wallet");
-      });
+    () => onUser();
   }
-
   return (
     <SafeAreaView backgroundColor={BackgroundPrimary}>
       <ScrollView
@@ -287,7 +233,7 @@ export default function Checkout({ route, navigation }) {
               }}
             />
             <Box style={styles.avatar}>
-              <Text style={styles.cardInfoName}> {first} </Text>
+              <Text style={styles.cardInfoName}> {localUser.nome}</Text>
             </Box>
           </Box>
         </Box>
@@ -469,14 +415,14 @@ export default function Checkout({ route, navigation }) {
             Total do bilhete:
           </Text>
           <Text key={data.key6} style={styles.cardInfoResume}>
-            R$ {total}
+            R$ {ticket}
           </Text>
         </Box>
         <TouchableOpacity onPress={onOpen} style={styles.infoButton}>
           <Text style={styles.infoText}>Participar</Text>
         </TouchableOpacity>
       </Box>
-      {wallet < total ? (
+      {user.carteira < ticket ? (
         <Center>
           <Modal isOpen={isOpen} onClose={onClose}>
             <Modal.Content>
@@ -511,15 +457,15 @@ export default function Checkout({ route, navigation }) {
 
               <Modal.Body fontSize="4x2">
                 <Text>
-                  O saldo da sua conta é de R$ {wallet}. Deseja finalizar a
-                  compra?
+                  O saldo da sua conta é de R$ {user.carteira}. Deseja finalizar
+                  a compra?
                 </Text>
               </Modal.Body>
               <Modal.Footer>
                 <Button variant="unstyled" mr="1" onPress={onClose}>
                   Cancel
                 </Button>
-                <Button backgroundColor={Primary} onPress={comprar}>
+                <Button backgroundColor={Primary} onPress={setBuy}>
                   Confirmar
                 </Button>
               </Modal.Footer>

@@ -1,29 +1,13 @@
 import React, { useContext, useEffect, useState } from "react";
-import { ImageBackground, View } from "react-native";
+import { View } from "react-native";
 import { AuthContext } from "../../context/auth";
-import {
-  HStack,
-  Center,
-  Input,
-  Icon,
-  Avatar,
-  Image,
-  FlatList,
-  Text,
-  Box,
-  useDisclose,
-  Actionsheet,
-  Divider,
-  Button,
-  Tooltip,
-  ScrollView,
-} from "native-base";
+import { Input, Icon, Avatar, Image, FlatList, Text } from "native-base";
 import styles from "./styles";
 import { MaterialIcons, AntDesign, Ionicons } from "@expo/vector-icons";
 import { TouchableOpacity, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Touchables } from "./components/Consts";
-import { Last } from "./components/Consts";
+
 import { useNavigation } from "@react-navigation/native";
 import { JogoApi } from "../../components/hooks/jogos";
 import {
@@ -34,23 +18,24 @@ import {
   TextTertiary,
 } from "../../components/Colors";
 import { useIsFocused } from "@react-navigation/native";
-import New from "./components/New";
+import { onProducts } from "../../../services/products";
 import stylesnew from "./components/New";
 export default function Search() {
-  const { jogos, loading } = JogoApi("https://rutherles.site/api/jogos");
+  const { products } = onProducts();
   const navigation = useNavigation();
   const isFocused = useIsFocused();
   const { ShowTab } = useContext(AuthContext);
   const [selected, setSelected] = useState("TODOS");
-  const lotofacil = require("../../../assets/img/daylylf.png");
   const [searchBar, setSearchBar] = useState("");
   function PutSelected(key) {
     setSelected(key);
   }
   useEffect(() => {
-    ShowTab("visible");
-  }),
-    [isFocused];
+    if (isFocused) {
+      ShowTab("visible");
+      () => onProducts();
+    }
+  });
 
   return (
     <SafeAreaView style={styles.Container}>
@@ -147,7 +132,7 @@ export default function Search() {
         style={styles.lastContainer}
         horizontal={false}
         showsVerticalScrollIndicator={false}
-        data={jogos}
+        data={products}
         renderItem={({ item }) => (
           <TouchableOpacity
             onPress={() =>

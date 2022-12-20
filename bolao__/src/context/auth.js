@@ -2,7 +2,7 @@ import React, { createContext, useState, useEffect } from "react";
 import { useNavigation } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
-import { GetUserId } from "../components/hooks/asyncStorage";
+import { getLocalUser } from "../../services/asyncStorage";
 import { useToken } from "native-base";
 import api from "../components/hooks/api";
 export const AuthContext = createContext({});
@@ -18,10 +18,13 @@ function AuthProvider({ children }) {
   const [loading, setloading] = useState(false);
   const [myUser, setMyUser] = useState("");
   const [userLocal, setUserLocal] = useState("");
-  const { id } = GetUserId();
+  const { id } = getLocalUser();
   const [token, setToken] = useState("");
   const [user, setUser] = useState("");
 
+  if (id) {
+    setSignedIn(true);
+  }
   //get user //
   useEffect(() => {
     function GetUser() {
@@ -36,16 +39,13 @@ function AuthProvider({ children }) {
         .then(function (response) {
           setUser(response.data);
           storeDeposito(response.data.deposito);
-          console.log(response.data);
         })
-        .catch(function (error) {
-          console.error("getuser");
-        });
+        .catch(function (error) {});
     }
 
     GetUser();
   }, [id]);
-  console.error(id);
+
   // ----- //
 
   //get bilhete //
