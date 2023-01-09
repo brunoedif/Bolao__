@@ -16,8 +16,8 @@ export default StyleSheet.create({
   },
   logo: {
     marginBottom: Platform.OS === "android" ? "8%" : "10%",
-    width: 164,
-    height: 188,
+    width: 273,
+    height: 110,
 
     ...Platform.select({
       ios: {},

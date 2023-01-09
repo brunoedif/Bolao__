@@ -1,32 +1,50 @@
-import Routes from "./src/routes/routes";
-import { NativeBaseProvider } from "native-base";
-import * as Font from "expo-font";
-import React from "react";
-import AuthProvider from "./src/context/auth";
-import { NavigationContainer } from "@react-navigation/native";
-import Appbar from "./src/components/Appbar";
-import { useEffect, useState } from "react";
-import { SWRConfig } from "swr/_internal";
+import Routes from './src/routes/routes';
+import { NativeBaseProvider } from 'native-base';
+import * as Font from 'expo-font';
+import React from 'react';
+import AuthProvider from './src/context/auth';
+import { NavigationContainer } from '@react-navigation/native';
+import Appbar from './src/components/Appbar';
+import { useEffect, useState } from 'react';
+import { SWRConfig } from 'swr/_internal';
 
-let customFonts = {
-  roboto: require("./assets/fonts/Roboto-Light.ttf"),
-  "roboto-medium": require("./assets/fonts/Roboto-Medium.ttf"),
-  "roboto-bold": require("./assets/fonts/Roboto-Bold.ttf"),
-};
+import * as SplashScreen from 'expo-splash-screen';
+import { func } from './src/screens/Home/components/consts';
 
 export default function App() {
-  const [fontsLoaded, setFontsLoaded] = useState(false);
+  const [isLoading, setIsLoading] = React.useState(true);
 
-  async function loadFontsAsync() {
-    await Font.loadAsync(customFonts);
-    setFontsLoaded(true);
-  }
+  React.useEffect(() => {
+    async function prepare() {
+      try {
+        // keeps the splash screen visible while assets are cached
+        await SplashScreen.preventAutoHideAsync();
 
-  useEffect(() => {
-    loadFontsAsync();
+        // pre-load/cache assets: images, fonts, and videos
+        await func.loadAssetsAsync();
+      } catch (e) {
+        // console.warn(e);
+      } finally {
+        // loading is complete
+        setIsLoading(false);
+      }
+    }
+
+    prepare();
   }, []);
 
-  if (!fontsLoaded) {
+  React.useEffect(() => {
+    // when loading is complete
+    if (isLoading === false) {
+      // hide splash function
+      const hideSplash = async () => SplashScreen.hideAsync();
+
+      // hide splash screen to show app
+      hideSplash();
+    }
+  }, [isLoading]);
+
+  if (isLoading) {
     return null;
   }
 

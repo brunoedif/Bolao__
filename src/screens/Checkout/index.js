@@ -1,20 +1,20 @@
-import React, { useContext, useEffect, useState } from "react";
-import { AuthContext } from "../../context/auth";
-import { Button, Center, Modal, Toast, useDisclose } from "native-base";
-import { TouchableOpacity, ScrollView } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { Box, Image, Text, Avatar, Divider, HStack } from "native-base";
-import { Ionicons } from "@expo/vector-icons";
-import axios from "axios";
-import styles from "./styles";
-import { AntDesign } from "@expo/vector-icons";
+import React, { useContext, useEffect, useState } from 'react';
+import { AuthContext } from '../../context/auth';
+import { Button, Center, Modal, Toast, useDisclose } from 'native-base';
+import { TouchableOpacity, ScrollView } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { Box, Image, Text, Avatar, Divider, HStack } from 'native-base';
+import { Ionicons } from '@expo/vector-icons';
+import axios from 'axios';
+import styles from './styles';
+import { AntDesign } from '@expo/vector-icons';
 import {
   BackgroundPrimary,
   BackgroundSecondary,
   Primary,
-  TextTertiary,
-} from "../../components/Colors";
-import { useIsFocused } from "@react-navigation/native";
+  TextTertiary
+} from '../../components/Colors';
+import { useIsFocused } from '@react-navigation/native';
 export default function Checkout({ route, navigation }) {
   const {
     imagem,
@@ -31,7 +31,7 @@ export default function Checkout({ route, navigation }) {
     semana,
     concurso,
     data,
-    cotas,
+    cotas
   } = route.params;
   const [count, setCount] = useState(1);
   const [countMonths, setCountMonths] = useState(1);
@@ -75,15 +75,15 @@ export default function Checkout({ route, navigation }) {
   function updateTotal() {
     setTotal(count * valor * countMonths);
   }
-  console.error({ co: cota_total, ca: user.carteira, t: total });
+  //console.error({ co: cota_total, ca: user.carteira, t: total });
 
   useEffect(() => {
     if (isFocused) {
-      showTab("none");
+      showTab('none');
       setTotal(count * valor * countMonths);
       // get user data from API
       axios
-        .get("https://api.rutherles.com/api/usuario/" + id)
+        .get('https://api.rutherles.com/api/usuario/' + id)
         .then((response) => {
           setUser(response.data[0]);
         })
@@ -105,11 +105,11 @@ export default function Checkout({ route, navigation }) {
 
       // Validate that there is enough quantity of the product to fulfill the purchase
       if (cota_total < count) {
-        throw new Error("Product is sold out!");
+        throw new Error('Product is sold out!');
       }
 
       // Make a POST request to the API to initiate the purchase
-      const compra = await axios.post("https://api.rutherles.com/api/compra", {
+      const compra = await axios.post('https://api.rutherles.com/api/compra', {
         user_id: id,
         valor: valor,
         imagem_small: imagem_small,
@@ -122,20 +122,20 @@ export default function Checkout({ route, navigation }) {
         imagem: imagem,
         jogo_id: jogo_id,
         status: status,
-        semana: semana,
+        semana: semana
       });
       // Make a PUT request to update the user's wallet balance in the database
       await axios.put(`https://api.rutherles.com/api/usuario/${id}`, {
-        carteira: user.carteira - total,
+        carteira: user.carteira - total
       });
 
       // Make a PUT request to update the product's quantity in the database
       await axios.put(`https://api.rutherles.com/api/jogo/${jogo_id}`, {
-        cota_total: cota_total - count,
+        cota_total: cota_total - count
       });
 
       // Navigate the user to the "Profile" screen
-      navigation.navigate("Profile");
+      navigation.navigate('Profile');
 
       // Close the purchase modal
       onClose();
@@ -153,11 +153,11 @@ export default function Checkout({ route, navigation }) {
     return (
       <Box
         flex={1}
-        alignItems={"center"}
-        justifyContent={"center"}
+        alignItems={'center'}
+        justifyContent={'center'}
         backgroundColor={BackgroundSecondary}
       >
-        <Image alt="" source={require("../../../assets/img/load.gif")} />
+        <Image alt="" source={require('../../../assets/img/load.gif')} />
       </Box>
     );
   } else {
@@ -171,23 +171,22 @@ export default function Checkout({ route, navigation }) {
           <Box
             px={4}
             py={4}
-            flexDirection={"row"}
-            justifyContent={"space-between"}
+            flexDirection={'row'}
+            justifyContent={'space-between'}
           >
             <Box
               backgroundColor={BackgroundSecondary}
               borderRadius={20}
-              alignItems={"center"}
+              alignItems={'center'}
               style={styles.cardHost}
               width={150}
               height={130}
-              justifyContent={"center"}
+              justifyContent={'center'}
             >
               <Image
                 style={styles.lastImage}
                 source={{
-                  uri:
-                    "https://api.rutherles.com/bolao/pages/uploads/" + imagem,
+                  uri: 'https://api.rutherles.com/bolao/pages/uploads/' + imagem
                 }}
                 alt=""
               />
@@ -195,20 +194,20 @@ export default function Checkout({ route, navigation }) {
             <Box
               backgroundColor={BackgroundSecondary}
               borderRadius={20}
-              alignItems={"center"}
+              alignItems={'center'}
               style={styles.cardHost}
               width={150}
               height={130}
-              justifyContent={"center"}
+              justifyContent={'center'}
             >
               <Avatar
                 mt={4}
-                alignSelf={"center"}
+                alignSelf={'center'}
                 borderWidth={3}
                 borderColor={Primary}
                 size="lg"
                 source={{
-                  uri: "https://api.multiavatar.com/Binx%20Boadjss.png",
+                  uri: 'https://api.multiavatar.com/Binx%20Boadjss.png'
                 }}
               />
               <Box style={styles.avatar}>
@@ -220,8 +219,8 @@ export default function Checkout({ route, navigation }) {
           <Box
             pt={4}
             px={4}
-            flexDirection={"row"}
-            justifyContent={"space-between"}
+            flexDirection={'row'}
+            justifyContent={'space-between'}
             style={styles.productTitle}
           >
             <Text style={styles.cardInfoName}>{nome}</Text>
@@ -231,8 +230,8 @@ export default function Checkout({ route, navigation }) {
           <Box
             pt={4}
             px={4}
-            flexDirection={"row"}
-            justifyContent={"space-between"}
+            flexDirection={'row'}
+            justifyContent={'space-between'}
             style={styles.productTitle}
           >
             <Text key={data.key6} style={styles.cardInfo}>
@@ -245,9 +244,9 @@ export default function Checkout({ route, navigation }) {
           <Divider color={TextTertiary} marginVertical={15} />
           <Box
             px={4}
-            flexDirection={"row"}
-            alignItems={"center"}
-            justifyContent={"space-between"}
+            flexDirection={'row'}
+            alignItems={'center'}
+            justifyContent={'space-between'}
             style={styles.productTitle}
           >
             <Text key={data.key6} style={styles.cardInfo}>
@@ -256,8 +255,8 @@ export default function Checkout({ route, navigation }) {
 
             <HStack
               style={styles.placesButtons}
-              width={"21%"}
-              justifyContent={"space-between"}
+              width={'21%'}
+              justifyContent={'space-between'}
             >
               <TouchableOpacity
                 onPress={decrementCount}
@@ -289,8 +288,8 @@ export default function Checkout({ route, navigation }) {
           <Divider marginVertical={15} />
           <Box
             px={4}
-            flexDirection={"row"}
-            justifyContent={"space-between"}
+            flexDirection={'row'}
+            justifyContent={'space-between'}
             style={styles.productTitle}
           >
             <Text key={data.key6} style={styles.cardInfo}>
@@ -298,8 +297,8 @@ export default function Checkout({ route, navigation }) {
             </Text>
             <HStack
               style={styles.placesButtons}
-              width={"21%"}
-              justifyContent={"space-between"}
+              width={'21%'}
+              justifyContent={'space-between'}
             >
               <TouchableOpacity
                 onPress={decrementMonth}
@@ -331,8 +330,8 @@ export default function Checkout({ route, navigation }) {
           <Divider marginVertical={15} />
           <Box
             px={4}
-            flexDirection={"row"}
-            justifyContent={"space-between"}
+            flexDirection={'row'}
+            justifyContent={'space-between'}
             style={styles.productTitle}
           >
             <Text key={data.key6} style={styles.cardInfo}>
@@ -345,8 +344,8 @@ export default function Checkout({ route, navigation }) {
           <Divider marginVertical={15} />
           <Box
             px={4}
-            flexDirection={"row"}
-            justifyContent={"space-between"}
+            flexDirection={'row'}
+            justifyContent={'space-between'}
             style={styles.productTitle}
           >
             <Text key={data.key6} style={styles.cardInfo}>
@@ -359,8 +358,8 @@ export default function Checkout({ route, navigation }) {
           <Divider marginVertical={15} />
           <Box
             px={4}
-            flexDirection={"row"}
-            justifyContent={"space-between"}
+            flexDirection={'row'}
+            justifyContent={'space-between'}
             style={styles.productTitle}
           >
             <Text key={data.key6} style={styles.cardInfo}>
@@ -382,8 +381,8 @@ export default function Checkout({ route, navigation }) {
             <Text pb={2} style={styles.cardInfoResume}>
               Arquivos:
             </Text>
-            <HStack justifyContent={"space-around"} alignItems={"center"}>
-              <HStack alignItems={"center"}>
+            <HStack justifyContent={'space-around'} alignItems={'center'}>
+              <HStack alignItems={'center'}>
                 <AntDesign name="table" size={24} color="black" />
                 <Text ml={4} style={styles.cardInfo}>
                   Tabela
@@ -395,7 +394,7 @@ export default function Checkout({ route, navigation }) {
                 alt=""
                 source={{
                   uri:
-                    "https://api.rutherles.com/bolao/pages/uploads/" + arquivos,
+                    'https://api.rutherles.com/bolao/pages/uploads/' + arquivos
                 }}
               />
             </HStack>
@@ -403,8 +402,8 @@ export default function Checkout({ route, navigation }) {
         </ScrollView>
 
         <Box
-          width={"95%"}
-          alignSelf={"center"}
+          width={'95%'}
+          alignSelf={'center'}
           borderRadius={20}
           marginTop={4}
           backgroundColor={BackgroundSecondary}
@@ -413,8 +412,8 @@ export default function Checkout({ route, navigation }) {
           <Box
             py={4}
             px={4}
-            flexDirection={"row"}
-            justifyContent={"space-between"}
+            flexDirection={'row'}
+            justifyContent={'space-between'}
             style={styles.productTitle}
           >
             <Text key={data.key6} style={styles.cardInfoResumeTitle}>
@@ -431,7 +430,7 @@ export default function Checkout({ route, navigation }) {
         {notFound ? (
           <Center>
             <Modal isOpen={isOpen} onClose={onClose}>
-              <Modal.Content width={"70%"}>
+              <Modal.Content width={'70%'}>
                 <Modal.CloseButton />
                 <Modal.Header fontSize="4xl" fontWeight="bold">
                   Ops! Houve um erro.
@@ -444,7 +443,7 @@ export default function Checkout({ route, navigation }) {
                     height={50}
                     alignSelf="center"
                     mb={5}
-                    source={require("../../../assets/img/error.gif")}
+                    source={require('../../../assets/img/error.gif')}
                   />
 
                   <Text>
@@ -462,7 +461,7 @@ export default function Checkout({ route, navigation }) {
                   ) : (
                     <Button
                       backgroundColor={Primary}
-                      onPress={() => navigation.navigate("Wallet")}
+                      onPress={() => navigation.navigate('Wallet')}
                     >
                       Recarregue agora!
                     </Button>
@@ -474,7 +473,7 @@ export default function Checkout({ route, navigation }) {
         ) : (
           <Center>
             <Modal isOpen={isOpen} onClose={onClose}>
-              <Modal.Content width={"70%"}>
+              <Modal.Content width={'70%'}>
                 <Modal.CloseButton />
                 <Modal.Header fontSize="4xl" fontWeight="bold">
                   Finalizar compra?

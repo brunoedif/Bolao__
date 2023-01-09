@@ -1,32 +1,32 @@
-import React, { createContext, useState, useEffect } from "react";
-import { useNavigation } from "@react-navigation/native";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import React, { createContext, useState, useEffect } from 'react';
+import { useNavigation } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // create the auth context to provide auth-related values and functions to its children components
 export const AuthContext = createContext({});
 
 function AuthProvider({ children }) {
   const navigation = useNavigation();
-  const [email, setEmail] = useState("");
-  const [code, setCode] = useState("");
-  const [currentScreen, setCurrentScreen] = useState("");
-  const [isSignedIn, setIsSignedIn] = useState(null);
+  const [email, setEmail] = useState('');
+  const [code, setCode] = useState('');
+  const [currentScreen, setCurrentScreen] = useState('');
+  const [isSignedIn, setIsSignedIn] = useState(true);
   const [id, setId] = useState(null);
   const [deposito, setDeposito] = useState([]);
 
-  console.error(isSignedIn);
+  //console.error(isSignedIn);
   // check if the user is logged in by checking the value of the '@isLoggedIn' key in AsyncStorage
   const checkIfLoggedIn = async () => {
     try {
-      const isLoggedIn = await AsyncStorage.getItem("@isLoggedIn");
-      const user = await AsyncStorage.getItem("@user");
+      const isLoggedIn = await AsyncStorage.getItem('@isLoggedIn');
+      const user = await AsyncStorage.getItem('@user');
 
-      if (isLoggedIn == "true") {
+      if (isLoggedIn == 'true') {
         setIsSignedIn(true);
       }
       setId(JSON.parse(user).id);
     } catch (error) {
-      setIsSignedIn(false);
+      setIsSignedIn(true);
     }
   };
   checkIfLoggedIn();
@@ -34,11 +34,11 @@ function AuthProvider({ children }) {
   // remove the '@isLoggedIn' key from AsyncStorage and set isSignedIn to false
   const logout = async () => {
     try {
-      await AsyncStorage.removeItem("@isLoggedIn");
+      await AsyncStorage.removeItem('@isLoggedIn');
       setIsSignedIn(false);
-      console.log("User logged out successfully.");
+      console.log('User logged out successfully.');
     } catch (error) {
-      console.error("Error while logging out:", error);
+      console.error('Error while logging out:', error);
     }
   };
 
@@ -51,7 +51,7 @@ function AuthProvider({ children }) {
   const setEmailAndNavigate = (email) => {
     setEmail(email);
 
-    navigation.navigate("Code");
+    navigation.navigate('Code');
   };
 
   // update the code state variable
@@ -68,14 +68,14 @@ function AuthProvider({ children }) {
   const storeDeposito = async (value) => {
     try {
       const jsonValue = JSON.stringify(value);
-      await AsyncStorage.setItem("@deposito", jsonValue);
+      await AsyncStorage.setItem('@deposito', jsonValue);
     } catch (e) {}
   };
 
   const getDeposito = async () => {
     try {
       // Try to retrieve the value from async storage
-      const jsonValue = await AsyncStorage.getItem("@deposito");
+      const jsonValue = await AsyncStorage.getItem('@deposito');
 
       // If the value exists, parse it from a JSON string and set it to the deposito state variable
       if (jsonValue != null) {
@@ -106,7 +106,7 @@ function AuthProvider({ children }) {
         logout,
         SetCode,
         storeDeposito,
-        isSignedIn,
+        isSignedIn
       }}
     >
       {children}
